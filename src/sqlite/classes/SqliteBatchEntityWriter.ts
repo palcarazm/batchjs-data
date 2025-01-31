@@ -1,6 +1,6 @@
 import sqlite from "sqlite";
 import { AbstractBatchEntityWriterStream, AbstractBatchEntityWriterStreamOptions } from "../../common/index";
-import { BatchData, WriteCallback } from "batchjs/streams";
+import { BatchData, WriteCallback } from "batchjs";
 
 /**
  * @interface

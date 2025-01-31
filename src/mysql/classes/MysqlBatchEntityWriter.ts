@@ -1,5 +1,5 @@
 import { Pool, PoolConnection } from "mysql2/promise";
-import { BatchData } from "batchjs/streams";
+import { BatchData } from "batchjs";
 import { AbstractBatchEntityWriterStream, AbstractBatchEntityWriterStreamOptions } from "../../common";
 
 /**

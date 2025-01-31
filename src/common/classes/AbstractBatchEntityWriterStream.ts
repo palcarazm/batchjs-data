@@ -1,4 +1,4 @@
-import { ObjectWritable, ObjectWritableOptions, WriteCallback, BatchData } from "batchjs/streams";
+import { ObjectWritable, ObjectWritableOptions, WriteCallback, BatchData } from "batchjs";
 
 /**
  * @interface

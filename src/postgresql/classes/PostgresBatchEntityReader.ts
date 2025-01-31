@@ -1,6 +1,6 @@
 import { Pool, PoolClient } from "pg";
 import { AbstractBatchEntityReaderStream, AbstractBatchEntityReaderStreamOptions } from "../../common/index";
-import { BatchData } from "batchjs/streams";
+import { BatchData } from "batchjs";
 
 /**
  * @interface

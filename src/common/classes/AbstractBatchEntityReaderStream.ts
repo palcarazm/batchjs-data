@@ -1,4 +1,4 @@
-import { ObjectReadable, ObjectReadableOptions, BatchData } from "batchjs/streams";
+import { ObjectReadable, ObjectReadableOptions, BatchData } from "batchjs";
 
 /**
  * @interface

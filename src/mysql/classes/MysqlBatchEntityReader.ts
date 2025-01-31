@@ -1,6 +1,6 @@
 import { Pool, PoolConnection, RowDataPacket } from "mysql2/promise";
 import { AbstractBatchEntityReaderStream, AbstractBatchEntityReaderStreamOptions } from "../../common/index";
-import { BatchData, ReadCallback } from "batchjs/streams";
+import { BatchData, ReadCallback } from "batchjs";
 
 /**
  * @interface
