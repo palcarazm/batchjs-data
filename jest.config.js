@@ -23,6 +23,8 @@ module.exports = {
             lines: 80,
         },
     },
+    globalSetup: "<rootDir>/test/global-setup.ts",
     coverageDirectory: "coverage",
     reporters: [["github-actions", {silent: false}], "summary"],
+    maxConcurrency: 1
 };
