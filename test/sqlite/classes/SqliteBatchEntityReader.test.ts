@@ -36,7 +36,7 @@ describe("SqliteBatchEntityReader", () => {
     });
 
     reader.on("error", (error) => {
-      fail(error);
+      done(error);
     });
 
     reader.on("end", () => {
