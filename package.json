@@ -86,6 +86,11 @@
   },
   "exports": {
     ".": {
+      "types": "./dist/@types/index.d.ts",
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.js"
+    },
+    "./common": {
       "types": "./dist/@types/common/index.d.ts",
       "import": "./dist/esm/common/index.js",
       "require": "./dist/cjs/common/index.js"
