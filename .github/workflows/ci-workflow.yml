@@ -45,12 +45,18 @@ jobs:
         env:
           CI: true
 
-      - name: Upload coverage report
+      - name: Upload coverage report to Github
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: coverage-report-${{ matrix.node-version }}
           path: coverage
+
+      - name: Upload coverage report to Coveralls
+        uses: coverallsapp/github-action@v2
+        with:
+          flag-name: coverage-report-${{ matrix.node-version }}
+          parallel: true
 
   analyze:
     name: Analyze code with CodeQL

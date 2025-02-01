@@ -1,8 +1,8 @@
 [![GitHub license](https://img.shields.io/github/license/palcarazm/batchjs-data.svg?color=informational)](https://github.com/palcarazm/batchjs-data/blob/version/v1/LICENSE)
 [![Latest release](https://img.shields.io/github/package-json/v/palcarazm/batchjs-data/version/v1?logo=github)](https://github.com/palcarazm/batchjs-data/releases)
 [![NPM Badge](https://img.shields.io/npm/dm/batchjs-data?logo=npm)](https://www.npmjs.com/package/batchjs-data)
-[![Build](https://img.shields.io/github/actions/workflow/status/palcarazm/batchjs-data/ci-workflow.yml?branch=version/v1&label=build&logo=Node.js&logoColor=white)](https://github.com/palcarazm/batchjs-data/actions/workflows/ci-workflow.yml)
-[![Test](https://img.shields.io/github/actions/workflow/status/palcarazm/batchjs-data/ci-workflow.yml?branch=version/v1&label=test&logo=jest)](https://github.com/palcarazm/batchjs-data/actions/workflows/ci-workflow.yml)
+[![CI](https://img.shields.io/github/actions/workflow/status/palcarazm/batchjs-data/ci-workflow.yml?branch=version/v1&label=CI&logo=Node.js&logoColor=white)](https://github.com/palcarazm/batchjs-data/actions/workflows/ci-workflow.yml)
+[![Coverage](https://coveralls.io/repos/github/palcarazm/batchjs-data/badge.svg?branch=version/v1)](https://coveralls.io/github/palcarazm/batchjs-data?branch=version/v1)
 [![Funding](https://img.shields.io/badge/sponsor-30363D?style=flat&logo=GitHub-Sponsors&logoColor=#white)](https://github.com/sponsors/palcarazm)
 
 # BatchJS-Data
