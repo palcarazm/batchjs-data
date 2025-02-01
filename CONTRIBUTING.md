@@ -1,11 +1,11 @@
-# Contributing to batchJS-SQL
+# Contributing to batchJS-Data
 
 Thank you for considering contributing to batchJS! We appreciate your interest and are excited to collaborate with you. To ensure a smooth contribution process, please follow the guidelines outlined below.
 
 ## How to Contribute
 
 ### 1. **Fork and Clone**
-Currently, we do not require forking the repository. Please clone the repository directly from the [batchJS-SQL GitHub repository](https://github.com/palcarazm/batchjs-sql).
+Currently, we do not require forking the repository. Please clone the repository directly from the [batchJS-Data GitHub repository](https://github.com/palcarazm/batchjs-data).
 
 ### 2. **Branch Structure**
 
@@ -50,5 +50,5 @@ Please adhere to our [Code of Conduct](CODE_OF_CONDUCT.md), which is based on th
 
 For any questions or further communication, you can reach us via [email](mailto:pablo@alcaraz.es) or preferably by opening a thread in the Q&A section of the [Discussions](https://github.com/palcarazm/batchjs/discussions) section.
 
-Thank you for your contributions to batchJS!
+Thank you for your contributions to batchJS framework!
 

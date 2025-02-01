@@ -1,5 +1,5 @@
 name: "✨ Feature request"
-description: Suggest a feature or enhancement to improve BatchJS-SQL.
+description: Suggest a feature or enhancement to improve BatchJS-DAta.
 labels: "feature"
 body:
   - type: textarea
