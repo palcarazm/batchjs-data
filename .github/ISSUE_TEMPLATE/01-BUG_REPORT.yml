@@ -45,7 +45,7 @@ body:
   - type: input
     id: version
     attributes:
-      label: BatchJS-SQL Version
+      label: BatchJS-Data Version
       description: Provide the version of the product where the error was encountered.
       placeholder: ex. 10.3.1
     validations:
