@@ -1,0 +1,119 @@
+{
+  "name": "batchjs-data",
+  "version": "1.0.0",
+  "author": {
+    "name": "Pablo Alcaraz Martínez",
+    "url": "https://github.com/palcarazm/"
+  },
+  "funding": {
+    "type": "GitHub Sponsors",
+    "url": "https://github.com/sponsors/palcarazm"
+  },
+  "description": "Extension for BatchJS adding data storage support for databases",
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.js",
+  "types": "dist/@types",
+  "files": [
+    "dist",
+    "docs"
+  ],
+  "scripts": {
+    "prepack": "npm run build",
+    "build:cjs": "tsc --project tsconfig.cjs.json",
+    "build:esm": "tsc --project tsconfig.esm.json",
+    "build": "npm run build:cjs && npm run build:esm",
+    "build:watch": "tsc --build tsconfig.cjs.json --watch",
+    "docs": "npm run docs:common && npm run docs:sqlite && npm run docs:postgresql && npm run docs:mariadb && npm run docs:mysql",
+    "docs:common": "jsdoc2md --files ./src/common/**/*.ts --helper ./scripts/jsdoc2md/helpers.js --configure ./scripts/jsdoc2md/jsdoc2md.rc --template ./scripts/jsdoc2md/template-common.hbs > ./docs/common-api.md",
+    "docs:sqlite": "jsdoc2md --files ./src/sqlite/**/*.ts --helper ./scripts/jsdoc2md/helpers.js --configure ./scripts/jsdoc2md/jsdoc2md.rc --template ./scripts/jsdoc2md/template-common.hbs > ./docs/sqlite-api.md",
+    "docs:postgresql": "jsdoc2md --files ./src/postgresql/**/*.ts --helper ./scripts/jsdoc2md/helpers.js --configure ./scripts/jsdoc2md/jsdoc2md.rc --template ./scripts/jsdoc2md/template-common.hbs > ./docs/postgresql-api.md",
+    "docs:mariadb": "jsdoc2md --files ./src/mariadb/**/*.ts --helper ./scripts/jsdoc2md/helpers.js --configure ./scripts/jsdoc2md/jsdoc2md.rc --template ./scripts/jsdoc2md/template-common.hbs > ./docs/mariadb-api.md",
+    "docs:mysql": "jsdoc2md --files ./src/mysql/**/*.ts --helper ./scripts/jsdoc2md/helpers.js --configure ./scripts/jsdoc2md/jsdoc2md.rc --template ./scripts/jsdoc2md/template-common.hbs > ./docs/mysql-api.md",
+    "test": "jest --coverage",
+    "lint": "eslint ./src",
+    "prepare": "husky"
+  },
+  "keywords": [
+    "database batch framework",
+    "database",
+    "batch",
+    "framework",
+    "streams"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/palcarazm/batchjs-data.git"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/palcarazm/batchjs-data/issues"
+  },
+  "homepage": "https://github.com/palcarazm/batchjs-data#readme",
+  "devDependencies": {
+    "@babel/core": "^7.24.9",
+    "@babel/preset-env": "^7.24.8",
+    "@babel/preset-typescript": "^7.24.7",
+    "@commitlint/cli": "^19.2.1",
+    "@commitlint/config-conventional": "^19.1.0",
+    "@types/jest": "^29.5.12",
+    "@typescript-eslint/eslint-plugin": "^8.20.0",
+    "@typescript-eslint/parser": "^8.20.0",
+    "commitlint": "^19.2.1",
+    "dotenv": "^16.4.7",
+    "eslint": "^9.8.0",
+    "globals": "^15.9.0",
+    "husky": "^9.0.11",
+    "jest": "^29.7.0",
+    "jsdoc": "^4.0.3",
+    "jsdoc-babel": "^0.5.0",
+    "jsdoc-to-markdown": "^9.0.5",
+    "ts-jest": "^29.2.3",
+    "typescript": "^5.5.4"
+  },
+  "optionalDependencies": {
+    "@types/pg": "^8.11.11",
+    "mariadb": "^3.4.0",
+    "mysql2": "^3.12.0",
+    "pg": "^8.13.1",
+    "sqlite": "^5.1.1",
+    "sqlite3": "^5.1.7"
+  },
+  "dependencies": {
+    "batchjs": "^1.1.0"
+  },
+  "commitlint": {
+    "extends": "@commitlint/config-conventional"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/@types/index.d.ts",
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.js"
+    },
+    "./common": {
+      "types": "./dist/@types/common/index.d.ts",
+      "import": "./dist/esm/common/index.js",
+      "require": "./dist/cjs/common/index.js"
+    },
+    "./sqlite": {
+      "types": "./dist/@types/sqlite/index.d.ts",
+      "import": "./dist/esm/sqlite/index.js",
+      "require": "./dist/cjs/sqlite/index.js"
+    },
+    "./postgresql": {
+      "types": "./dist/@types/postgresql/index.d.ts",
+      "import": "./dist/esm/postgresql/index.js",
+      "require": "./dist/cjs/postgresql/index.js"
+    },
+    "./mariadb": {
+      "types": "./dist/@types/mariadb/index.d.ts",
+      "import": "./dist/esm/mariadb/index.js",
+      "require": "./dist/cjs/mariadb/index.js"
+    },
+    "./mysql": {
+      "types": "./dist/@types/mysql/index.d.ts",
+      "import": "./dist/esm/mysql/index.js",
+      "require": "./dist/cjs/mysql/index.js"
+    }
+  }
+}
