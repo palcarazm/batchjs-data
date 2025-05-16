@@ -26,5 +26,6 @@ module.exports = {
     globalSetup: "<rootDir>/test/global-setup.ts",
     coverageDirectory: "coverage",
     reporters: [["github-actions", {silent: false}], "summary"],
-    maxConcurrency: 1
+    maxConcurrency: 1,
+    maxWorkers: 1,
 };
