@@ -37,15 +37,15 @@ export abstract class AbstractBatchEntityWriterStream<T> extends ObjectWritable 
      * @param {WriteCallback} callback - The callback function to be executed after writing the data.
      */
     _write(chunk: T, encoding: BufferEncoding, callback: WriteCallback): void {
-            this.buffer.push(chunk);
-            if (this.buffer.length >= this.batchSize) {
-                  this._flush()
-                      .then(() => callback())
-                      .catch((error) => callback(error));
-            } else {
-                callback();
-            }
-       }
+        this.buffer.push(chunk);
+        if (this.buffer.length >= this.batchSize) {
+            this._flush()
+                .then(() => callback())
+                .catch((error) => callback(error));
+        } else {
+            callback();
+        }
+    }
 
     /**
      * Finalizes the stream by pushing remaining data batches, handling errors,
