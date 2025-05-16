@@ -63,7 +63,10 @@ describe("AbstractBatchEntityReaderStream", () => {
             result.push(chunk);
 
             if (result.length === 2) {
-                spy.mockImplementationOnce(() => false);
+                spy.mockImplementationOnce((data) => {
+                    reader.emit('data',data);
+                    return false;
+                });
                 setTimeout(()=>{
                     reader.emit("drain");
                 },50);
@@ -72,7 +75,7 @@ describe("AbstractBatchEntityReaderStream", () => {
 
         reader.on("end", () => {
             expect(result).toEqual(data);
-            expect(spy).toHaveBeenCalledTimes(data.length + 2);
+            expect(spy).toHaveBeenCalledTimes(data.length + 1);
             done();
         });
 

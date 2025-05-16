@@ -35,19 +35,17 @@ export abstract class AbstractBatchEntityWriterStream<T> extends ObjectWritable 
      * @param {T} chunk - The data chunk to write to the stream.
      * @param {BufferEncoding} encoding - The encoding of the data.
      * @param {WriteCallback} callback - The callback function to be executed after writing the data.
-     * @return {Promise<void>} This function does not return anything.
      */
-    async _write(chunk: T, encoding: BufferEncoding, callback: WriteCallback): Promise<void> {
-        try {
+    _write(chunk: T, encoding: BufferEncoding, callback: WriteCallback): void {
             this.buffer.push(chunk);
             if (this.buffer.length >= this.batchSize) {
-                await this._flush();
+                  this._flush()
+                      .then(() => callback())
+                      .catch((error) => callback(error));
+            } else {
+                callback();
             }
-            callback();
-        } catch (error) {
-            callback(error as Error);
-        }
-    }
+       }
 
     /**
      * Finalizes the stream by pushing remaining data batches, handling errors,
