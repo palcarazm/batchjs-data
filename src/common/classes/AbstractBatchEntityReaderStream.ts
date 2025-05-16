@@ -38,24 +38,26 @@ export abstract class AbstractBatchEntityReaderStream<T> extends ObjectReadable 
      * If an error occurs while reading data, it emits an error event to the stream.
      *
      * @param {number} [size] - The size parameter for controlling the read operation.
-     * @returns {Promise<void>} A promise that resolves when the data has been read and pushed to the consumer stream.
      */
-    async _read(size: number): Promise<void> {
+    _read(size: number): void {
         if (this.reading) return;
+
         this.reading = true;
-        try {
-            const entities: T[] = await this.fetch(Math.min(size, this.batchSize));
-            if (entities.length === 0) {
-                this.push(null);
-            }else{
-                this.buffer.push(...entities);
-                await this._flush();
-            }
-        } catch (error) {
-            this.emit("error", error as Error);
-        }finally{
-            this.reading = false;
-        }
+
+        this.fetch(Math.min(size, this.batchSize))
+            .then((entities) => {
+                if (entities.length === 0) {
+                    this.push(null);
+                } else {
+                    this.buffer.push(...entities);
+                    this._flush().finally(() => {
+                        this.reading = false;
+                    });
+                }
+            })
+            .catch((error) => {
+                this.emit("error", error);
+            });
     }
 
     /**
@@ -65,12 +67,12 @@ export abstract class AbstractBatchEntityReaderStream<T> extends ObjectReadable 
      * @private
      * @returns {Promise<void>} A promise that resolves when the buffer is flushed.
      */
-    private async _flush():Promise<void>{
+    private _flush():Promise<void>{
         while (this.buffer.length > 0) {
             const chunk = this.buffer.shift() as T;
             if (!this.push(chunk)) {
-                this.buffer.unshift(chunk);
-                await new Promise<void>((resolve) => this.once("drain", resolve));
+                this.once("drain", () => this._flush());
+                return Promise.resolve();
             }
         }
         return Promise.resolve();
