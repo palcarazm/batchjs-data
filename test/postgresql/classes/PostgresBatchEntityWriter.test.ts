@@ -37,6 +37,11 @@ describe("PostgresBatchEntityWriter", () => {
       .catch((error) => done(error));
   });
 
+  afterAll((done) => {
+    UserDatabase.closePool();
+    done();
+  });
+
   test("should save entities in database", (done) => {
     const writer = new UserBatchWriter({
       batchSize: data.length,

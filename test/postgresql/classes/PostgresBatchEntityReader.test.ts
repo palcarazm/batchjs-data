@@ -37,6 +37,11 @@ describe("PostgresBatchEntityReader", () => {
       .catch((error) => done(error));
   });
 
+  afterAll((done) => {
+    UserDatabase.closePool();
+    done();
+  });
+
   test("should read users in batches", (done) => {
     UserDatabase.load(Object.assign([], data)).then(() => {
       const reader = new UserBatchReader({ batchSize: 2 });
