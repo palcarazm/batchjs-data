@@ -16,9 +16,10 @@ export interface PostgresBatchEntityReaderOptions extends AbstractBatchEntityRea
  * @class
  * Class that reads data in batches of a specified size using PostgreSQL cursors.
  * @extends AbstractBatchEntityReaderStream
- * @template T
+ * @template T chunk entity
+ * @template E row entity
  */
-export abstract class PostgresBatchEntityReader<T> extends AbstractBatchEntityReaderStream<T> {
+export abstract class PostgresBatchEntityReader<T,E> extends AbstractBatchEntityReaderStream<T> {
     private readonly pool: Pool;
     private readonly query: string;
     private client: PoolClient | null = null;
@@ -115,8 +116,8 @@ export abstract class PostgresBatchEntityReader<T> extends AbstractBatchEntityRe
      * 
      * @abstract
      * @protected
-     * @param {unknown} row - A row from the database.
+     * @param {E} row - A row from the database.
      * @returns {T} The entity corresponding to the row.
      */
-    protected abstract rowToEntity(row: unknown): T;
+    protected abstract rowToEntity(row: E): T;
 }

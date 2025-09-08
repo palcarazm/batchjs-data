@@ -16,7 +16,7 @@ export interface SqliteBatchEntityWriterOptions extends AbstractBatchEntityWrite
  * @class
  * Class that write data in batches of a specified size in SQLite databases.
  * @extends AbstractBatchEntityWriterStream
- * @template T
+ * @template T chunk entity
  */
 export abstract class SqliteBatchEntityWriter<T> extends AbstractBatchEntityWriterStream<T> {
     private readonly dbConnectionFactory: ()=>Promise<sqlite.Database>;

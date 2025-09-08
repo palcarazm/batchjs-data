@@ -16,7 +16,7 @@ export interface MariadbBatchEntityReaderOptions extends AbstractBatchEntityRead
  * @class
  * Class that read data in batches of a specified size in Mariadb databases.
  * @extends AbstractBatchEntityReaderStream
- * @template T input chunk
+ * @template T chunk entity
  * @template E row entity
  */
 export abstract class MariadbBatchEntityReader<T,E> extends AbstractBatchEntityReaderStream<T> {

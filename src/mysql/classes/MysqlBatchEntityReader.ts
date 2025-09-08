@@ -16,7 +16,7 @@ export interface MysqlBatchEntityReaderOptions extends AbstractBatchEntityReader
  * @class
  * Class that reads data in batches of a specified size from a MySQL database.
  * @extends AbstractBatchEntityReaderStream
- * @template T input chunk
+ * @template T chunk entity
  * @template E row entity
  */
 export abstract class MysqlBatchEntityReader<T,E> extends AbstractBatchEntityReaderStream<T> {
