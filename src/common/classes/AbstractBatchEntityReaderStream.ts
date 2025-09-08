@@ -15,7 +15,7 @@ export interface AbstractBatchEntityReaderStreamOptions extends ObjectReadableOp
  * @extends ObjectReadable
  * @template T
  */
-export abstract class AbstractBatchEntityReaderStream<T> extends ObjectReadable {
+export abstract class AbstractBatchEntityReaderStream<T> extends ObjectReadable<T> {
     private reading: boolean = false;
     protected buffer: BatchData<T> = [];
     private readonly batchSize: number;

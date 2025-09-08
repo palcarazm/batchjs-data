@@ -15,7 +15,7 @@ export interface AbstractBatchEntityWriterStreamOptions extends ObjectWritableOp
  * @extends ObjectWritable
  * @template T
  */
-export abstract class AbstractBatchEntityWriterStream<T> extends ObjectWritable {
+export abstract class AbstractBatchEntityWriterStream<T> extends ObjectWritable<T> {
     protected buffer: BatchData<T> = [];
     private readonly batchSize: number;
 
