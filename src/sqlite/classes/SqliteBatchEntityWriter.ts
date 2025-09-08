@@ -132,12 +132,12 @@ export abstract class SqliteBatchEntityWriter<T> extends AbstractBatchEntityWrit
      * @param callback {WriteCallback} - The callback function to be executed after finalizing the writer.
      * @returns {Promise<void>}
      */
-    async _final(callback: WriteCallback): Promise<void> {
-        try {
-            await super._final(callback);
-        } finally {
-            await this.finalizeStatement();
-        }
+    _final(callback: WriteCallback):void {
+        super._final((error?:Error|null|undefined)=>{
+            this.finalizeStatement()
+                .then(()=>callback(error))
+                .catch((error) => callback(error));
+        });
     }
 
     /**
