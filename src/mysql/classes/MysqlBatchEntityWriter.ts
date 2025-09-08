@@ -16,7 +16,7 @@ export interface MysqlBatchEntityWriterOptions extends AbstractBatchEntityWriter
  * @class
  * Class that writes data in batches of a specified size into a MySQL database.
  * @extends AbstractBatchEntityWriterStream
- * @template T input chunk
+ * @template T chunk entity
  * @template E row entity
  */
 export abstract class MysqlBatchEntityWriter<T,E> extends AbstractBatchEntityWriterStream<T> {

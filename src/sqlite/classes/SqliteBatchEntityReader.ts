@@ -16,9 +16,10 @@ export interface SqliteBatchEntityReaderOptions extends AbstractBatchEntityReade
  * @class
  * Class that read data in batches of a specified size in SQLite databases.
  * @extends AbstractBatchEntityReaderStream
- * @template T
+ * @template T chunk entity
+ * @template E row entity
  */
-export abstract class SqliteBatchEntityReader<T> extends AbstractBatchEntityReaderStream<T> {
+export abstract class SqliteBatchEntityReader<T,E> extends AbstractBatchEntityReaderStream<T> {
     private readonly dbConnectionFactory: ()=>Promise<sqlite.Database>;
     private dbConnection: sqlite.Database | null = null;
     private readonly query: string;
@@ -47,7 +48,7 @@ export abstract class SqliteBatchEntityReader<T> extends AbstractBatchEntityRead
         return this.connectDatabase()
             .then((db)=>this.prepareStatement(db))
             .then((statement) => statement.all({ "@limit": size, "@offset": this.entitiesRead }))
-            .then((results: unknown[]) => {
+            .then((results: E[]) => {
                 this.entitiesRead += size;
                 return results.map(this.rowToEntity);;
             });
@@ -79,9 +80,7 @@ export abstract class SqliteBatchEntityReader<T> extends AbstractBatchEntityRead
      * @returns {Promise<sqlite.Database>} A promise that resolves with the database connection.
      */
     private async connectDatabase(): Promise<sqlite.Database> {
-        if (!this.dbConnection) {
-            this.dbConnection = await this.dbConnectionFactory();
-        }
+        this.dbConnection ??= await this.dbConnectionFactory();
         return this.dbConnection;
     }
 
@@ -107,9 +106,7 @@ export abstract class SqliteBatchEntityReader<T> extends AbstractBatchEntityRead
      * @returns {Promise<sqlite.Statement>} The prepared statement.
      */
     private async prepareStatement(db: sqlite.Database): Promise<sqlite.Statement> {
-        if (!this.fetchEntityStatement) {
-            this.fetchEntityStatement = await db.prepare( `${this.query} LIMIT @limit OFFSET @offset`);
-        }
+        this.fetchEntityStatement ??= await db.prepare( `${this.query} LIMIT @limit OFFSET @offset`);
         return this.fetchEntityStatement;
     }
     
@@ -133,7 +130,7 @@ export abstract class SqliteBatchEntityReader<T> extends AbstractBatchEntityRead
      * 
      * @abstract
      * @protected
-     * @param row {unknown} - The row to be converted to an entity.
+     * @param row {E} - The row to be converted to an entity.
      */
-    protected abstract rowToEntity(row: unknown): T
+    protected abstract rowToEntity(row: E): T
 }

@@ -15,7 +15,7 @@ export interface AbstractBatchEntityWriterStreamOptions extends ObjectWritableOp
  * @extends ObjectWritable
  * @template T
  */
-export abstract class AbstractBatchEntityWriterStream<T> extends ObjectWritable {
+export abstract class AbstractBatchEntityWriterStream<T> extends ObjectWritable<T> {
     protected buffer: BatchData<T> = [];
     private readonly batchSize: number;
 
@@ -54,13 +54,10 @@ export abstract class AbstractBatchEntityWriterStream<T> extends ObjectWritable 
      * @param {WriteCallback} callback - The callback function to be executed after finalizing the stream.
      * @return {Promise<void>} This function does not return anything.
      */
-    async _final(callback: WriteCallback): Promise<void> {
-        try {
-            await this._flush();
-            callback();
-        } catch (error) {
-            callback(error as Error);
-        }
+    _final(callback: WriteCallback): void {
+        this._flush()
+            .then(() => callback())
+            .catch((error) => callback(error));
     }
 
     /**

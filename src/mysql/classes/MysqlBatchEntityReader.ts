@@ -16,7 +16,7 @@ export interface MysqlBatchEntityReaderOptions extends AbstractBatchEntityReader
  * @class
  * Class that reads data in batches of a specified size from a MySQL database.
  * @extends AbstractBatchEntityReaderStream
- * @template T input chunk
+ * @template T chunk entity
  * @template E row entity
  */
 export abstract class MysqlBatchEntityReader<T,E> extends AbstractBatchEntityReaderStream<T> {
@@ -76,9 +76,7 @@ export abstract class MysqlBatchEntityReader<T,E> extends AbstractBatchEntityRea
      * @returns {Promise<PoolConnection>} A promise that resolves with the database connection.
      */
     private async connectDatabase(): Promise<PoolConnection> {
-        if (!this.client) {
-            this.client = await this.pool.getConnection();
-        }
+        this.client ??= await this.pool.getConnection();
         return this.client;
     }
 

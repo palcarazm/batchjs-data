@@ -16,7 +16,7 @@ export interface SqliteBatchEntityWriterOptions extends AbstractBatchEntityWrite
  * @class
  * Class that write data in batches of a specified size in SQLite databases.
  * @extends AbstractBatchEntityWriterStream
- * @template T
+ * @template T chunk entity
  */
 export abstract class SqliteBatchEntityWriter<T> extends AbstractBatchEntityWriterStream<T> {
     private readonly dbConnectionFactory: ()=>Promise<sqlite.Database>;
@@ -104,9 +104,7 @@ export abstract class SqliteBatchEntityWriter<T> extends AbstractBatchEntityWrit
      * @returns {Promise<sqlite.Statement>} The prepared statement.
      */
     private async prepareStatement(db: sqlite.Database): Promise<sqlite.Statement> {
-        if (!this.saveEntityStatement) {
-            this.saveEntityStatement = await db.prepare(this.prepareStatementString);
-        }
+        this.saveEntityStatement ??= await db.prepare(this.prepareStatementString);
         return this.saveEntityStatement;
     }
 
@@ -132,12 +130,12 @@ export abstract class SqliteBatchEntityWriter<T> extends AbstractBatchEntityWrit
      * @param callback {WriteCallback} - The callback function to be executed after finalizing the writer.
      * @returns {Promise<void>}
      */
-    async _final(callback: WriteCallback): Promise<void> {
-        try {
-            await super._final(callback);
-        } finally {
-            await this.finalizeStatement();
-        }
+    _final(callback: WriteCallback):void {
+        super._final((error?:Error|null|undefined)=>{
+            this.finalizeStatement()
+                .then(()=>callback(error))
+                .catch((error) => callback(error));
+        });
     }
 
     /**

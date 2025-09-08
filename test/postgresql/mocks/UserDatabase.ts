@@ -36,6 +36,13 @@ export class UserDatabase {
     return UserDatabase.pool;
   }
 
+  static closePool(): void {
+    if (UserDatabase.pool) {
+      UserDatabase.pool.end();
+      UserDatabase.pool = null;
+    }
+  }
+
   static mockWriter() {
     const idSet: Set<number> = new Set();
 
@@ -175,8 +182,6 @@ export class UserDatabase {
           })
           .finally(() => {
             connection.release();
-            UserDatabase.pool?.end();
-            UserDatabase.pool = null;
           });
       });
   }

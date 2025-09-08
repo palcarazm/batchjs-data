@@ -2,7 +2,7 @@ import { PostgresBatchEntityReader } from "../../../src/postgresql";
 import { UserDatabase } from "./UserDatabase";
 import { UserDTO } from "./UserDTO";
 
- export class UserBatchReader extends PostgresBatchEntityReader<UserDTO> {
+ export class UserBatchReader extends PostgresBatchEntityReader<UserDTO, UserDTO> {
       constructor(options:{batchSize:number,query?:string}) {
         super({
           batchSize: options.batchSize,
@@ -10,7 +10,7 @@ import { UserDTO } from "./UserDTO";
           query: options.query || "SELECT id, username FROM users"
         });
       }
-      protected rowToEntity(row: unknown): UserDTO {
+      protected rowToEntity(row: UserDTO): UserDTO {
         return row as UserDTO;
       }
     }

@@ -16,7 +16,7 @@ export interface MariadbBatchEntityWriterOptions extends AbstractBatchEntityWrit
  * @class
  * Class that writes data in batches of a specified size in MariadbQL databases.
  * @extends AbstractBatchEntityWriterStream
- * @template T input chunk
+ * @template T chunk entity
  * @template E row entity
  */
 export abstract class MariadbBatchEntityWriter<T,E> extends AbstractBatchEntityWriterStream<T> {

@@ -15,7 +15,7 @@ export interface PostgresBatchEntityWriterOptions extends AbstractBatchEntityWri
  * @class
  * Class that writes data in batches of a specified size in PostgreSQL databases.
  * @extends AbstractBatchEntityWriterStream
- * @template T
+ * @template T chunk entity
  */
 export abstract class PostgresBatchEntityWriter<T> extends AbstractBatchEntityWriterStream<T> {
     private readonly pool: Pool;

@@ -16,7 +16,7 @@ export interface MariadbBatchEntityReaderOptions extends AbstractBatchEntityRead
  * @class
  * Class that read data in batches of a specified size in Mariadb databases.
  * @extends AbstractBatchEntityReaderStream
- * @template T input chunk
+ * @template T chunk entity
  * @template E row entity
  */
 export abstract class MariadbBatchEntityReader<T,E> extends AbstractBatchEntityReaderStream<T> {
@@ -82,9 +82,7 @@ export abstract class MariadbBatchEntityReader<T,E> extends AbstractBatchEntityR
      * @returns {Promise<PoolConnection>} A promise that resolves with the database connection.
      */
     private async connectDatabase(): Promise<PoolConnection> {
-        if (!this.client) {
-            this.client = await this.pool.getConnection();
-        }
+        this.client ??= await this.pool.getConnection();
         return this.client;
     }
 
@@ -110,9 +108,7 @@ export abstract class MariadbBatchEntityReader<T,E> extends AbstractBatchEntityR
      * @returns {Promise<Mariadb.Statement>} The prepared statement.
      */
     private async prepareStatement(client: PoolConnection): Promise<Prepare> {
-        if (!this.fetchEntityStatement) {
-            this.fetchEntityStatement = await client.prepare( `${this.query} LIMIT ? OFFSET ?`);
-        }
+        this.fetchEntityStatement ??= await client.prepare( `${this.query} LIMIT ? OFFSET ?`);
         return this.fetchEntityStatement;
     }
     
