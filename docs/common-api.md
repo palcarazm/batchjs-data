@@ -42,11 +42,6 @@ If an error occurs while reading data, it emits an error event to the stream.
   |------------|-----------------------------------------|------------------------------|
   | **size** | The size parameter for controlling the read operation. | number |
 
-  #### Returns
-  | Type       | Description                             |
-  |------------|-----------------------------------------|
-  | Promise.&lt;void&gt; | A promise that resolves when the data has been read and pushed to the consumer stream. |
-
 
 ### _flush (function)
 
@@ -89,11 +84,6 @@ A method to write data to the stream, push the chunk to the buffer, and execute 
   | **chunk** | The data chunk to write to the stream. | T |
   | **encoding** | The encoding of the data. | BufferEncoding |
   | **callback** | The callback function to be executed after writing the data. | WriteCallback |
-
-  #### Returns
-  | Type       | Description                             |
-  |------------|-----------------------------------------|
-  | Promise.&lt;void&gt; | This function does not return anything. |
 
 
 ### _final (function)
