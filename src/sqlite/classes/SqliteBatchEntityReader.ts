@@ -79,9 +79,7 @@ export abstract class SqliteBatchEntityReader<T> extends AbstractBatchEntityRead
      * @returns {Promise<sqlite.Database>} A promise that resolves with the database connection.
      */
     private async connectDatabase(): Promise<sqlite.Database> {
-        if (!this.dbConnection) {
-            this.dbConnection = await this.dbConnectionFactory();
-        }
+        this.dbConnection ??= await this.dbConnectionFactory();
         return this.dbConnection;
     }
 
@@ -107,9 +105,7 @@ export abstract class SqliteBatchEntityReader<T> extends AbstractBatchEntityRead
      * @returns {Promise<sqlite.Statement>} The prepared statement.
      */
     private async prepareStatement(db: sqlite.Database): Promise<sqlite.Statement> {
-        if (!this.fetchEntityStatement) {
-            this.fetchEntityStatement = await db.prepare( `${this.query} LIMIT @limit OFFSET @offset`);
-        }
+        this.fetchEntityStatement ??= await db.prepare( `${this.query} LIMIT @limit OFFSET @offset`);
         return this.fetchEntityStatement;
     }
     

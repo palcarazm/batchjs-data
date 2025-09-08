@@ -76,9 +76,7 @@ export abstract class MysqlBatchEntityReader<T,E> extends AbstractBatchEntityRea
      * @returns {Promise<PoolConnection>} A promise that resolves with the database connection.
      */
     private async connectDatabase(): Promise<PoolConnection> {
-        if (!this.client) {
-            this.client = await this.pool.getConnection();
-        }
+        this.client ??= await this.pool.getConnection();
         return this.client;
     }
 

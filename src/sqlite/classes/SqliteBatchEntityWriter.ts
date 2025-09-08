@@ -104,9 +104,7 @@ export abstract class SqliteBatchEntityWriter<T> extends AbstractBatchEntityWrit
      * @returns {Promise<sqlite.Statement>} The prepared statement.
      */
     private async prepareStatement(db: sqlite.Database): Promise<sqlite.Statement> {
-        if (!this.saveEntityStatement) {
-            this.saveEntityStatement = await db.prepare(this.prepareStatementString);
-        }
+        this.saveEntityStatement ??= await db.prepare(this.prepareStatementString);
         return this.saveEntityStatement;
     }
 
