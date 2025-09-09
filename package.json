@@ -79,7 +79,7 @@
     "sqlite3": "^5.1.7"
   },
   "dependencies": {
-    "batchjs": "^1.2.1"
+    "batchjs": "^1.2.5"
   },
   "commitlint": {
     "extends": "@commitlint/config-conventional"
