@@ -6,10 +6,13 @@ import { BatchData } from "batchjs";
  * @interface
  * Options for the PostgresBatchEntityReader.
  * @extends AbstractBatchEntityReaderStreamOptions
+ * @template T chunk entity
+ * @template E row entity
  */
-export interface PostgresBatchEntityReaderOptions extends AbstractBatchEntityReaderStreamOptions {
+export interface PostgresBatchEntityReaderOptions<T,E> extends AbstractBatchEntityReaderStreamOptions {
     pool: Pool; // The PostgreSQL connection pool
     query: string; // SQL query (without LIMIT and OFFSET)
+    rowToEntity:(row: E) => T
 }
 
 /**
@@ -19,9 +22,10 @@ export interface PostgresBatchEntityReaderOptions extends AbstractBatchEntityRea
  * @template T chunk entity
  * @template E row entity
  */
-export abstract class PostgresBatchEntityReader<T,E> extends AbstractBatchEntityReaderStream<T> {
+export class PostgresBatchEntityReader<T,E> extends AbstractBatchEntityReaderStream<T> {
     private readonly pool: Pool;
     private readonly query: string;
+    private readonly rowToEntity:(row: E) => T;
     private client: PoolClient | null = null;
     private cursorName: string | null = null;
     private cursorOpened: boolean = false;
@@ -31,11 +35,13 @@ export abstract class PostgresBatchEntityReader<T,E> extends AbstractBatchEntity
      * @param {PostgresBatchEntityReaderOptions} options - The options for the PostgresBatchEntityReader.
      * @param [options.pool] {Pool} - The PostgreSQL connection pool.
      * @param [options.query] {string} - SQL query to be executed (without LIMIT and OFFSET).
+     * @param [options.rowToEntity] {Function} - Function that converts a row to an entity.
      */
-    constructor(options: PostgresBatchEntityReaderOptions) {
+    constructor(options: PostgresBatchEntityReaderOptions<T,E>) {
         super(options);
         this.pool = options.pool;
         this.query = options.query;
+        this.rowToEntity = options.rowToEntity;
     }
 
     /**
@@ -109,15 +115,4 @@ export abstract class PostgresBatchEntityReader<T,E> extends AbstractBatchEntity
             .catch((error) => {destroyError = error;})
             .finally(() => super._destroy(destroyError, callback));
     }
-
-    /**
-     * Abstract method to convert a row to an entity. 
-     * This method must be implemented by subclasses.
-     * 
-     * @abstract
-     * @protected
-     * @param {E} row - A row from the database.
-     * @returns {T} The entity corresponding to the row.
-     */
-    protected abstract rowToEntity(row: E): T;
 }

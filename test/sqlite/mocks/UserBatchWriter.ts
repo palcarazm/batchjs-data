@@ -9,10 +9,8 @@ export class UserBatchWriter extends SqliteBatchEntityWriter<UserDTO> {
         super({
             batchSize: options.batchSize,
             dbConnectionFactory: () => { return open({filename: DB.dbPath, driver: sqlite3.Database});},
-            prepareStatement: "INSERT INTO users (id, username) VALUES (@id, @username)"
+            prepareStatement: "INSERT INTO users (id, username) VALUES (@id, @username)",
+            saveEntity:(entity: UserDTO, stmt: sqlite.Statement)=>stmt.all<void>({'@id': entity.id, '@username': entity.username})
         });
-    }
-    protected saveEntity(entity: UserDTO, stmt: sqlite.Statement): Promise<void> {
-        return stmt.all<void>({'@id': entity.id, '@username': entity.username});
     }
 }

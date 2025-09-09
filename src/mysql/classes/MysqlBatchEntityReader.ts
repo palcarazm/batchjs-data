@@ -6,10 +6,13 @@ import { BatchData, ReadCallback } from "batchjs";
  * @interface
  * Options for the MysqlBatchEntityReader.
  * @extends AbstractBatchEntityReaderStreamOptions
+ * @template T chunk entity
+ * @template E row entity
  */
-export interface MysqlBatchEntityReaderOptions extends AbstractBatchEntityReaderStreamOptions {
+export interface MysqlBatchEntityReaderOptions<T,E> extends AbstractBatchEntityReaderStreamOptions {
     pool: Pool;
     query: string;
+    rowToEntity:(row: E) => T
 }
 
 /**
@@ -19,9 +22,10 @@ export interface MysqlBatchEntityReaderOptions extends AbstractBatchEntityReader
  * @template T chunk entity
  * @template E row entity
  */
-export abstract class MysqlBatchEntityReader<T,E> extends AbstractBatchEntityReaderStream<T> {
+export class MysqlBatchEntityReader<T,E> extends AbstractBatchEntityReaderStream<T> {
     private readonly pool: Pool;
     private readonly query: string;
+    private readonly rowToEntity:(row: E) => T;
     private client: PoolConnection | null = null;
     private entitiesRead: number = 0;
 
@@ -30,11 +34,13 @@ export abstract class MysqlBatchEntityReader<T,E> extends AbstractBatchEntityRea
      * @param {MysqlBatchEntityReaderOptions} options - The options for the MysqlBatchEntityReader.
      * @param [options.pool] {Pool} - The MySQL connection pool.
      * @param [options.query] {string} - SQL query to be executed (without LIMIT and OFFSET).
+     * @param [options.rowToEntity] {Function} - Function that converts a row to an entity.
      */
-    constructor(options: MysqlBatchEntityReaderOptions) {
+    constructor(options: MysqlBatchEntityReaderOptions<T,E>) {
         super(options);
         this.pool = options.pool;
         this.query = options.query;
+        this.rowToEntity = options.rowToEntity;
     }
 
     /**
@@ -94,12 +100,4 @@ export abstract class MysqlBatchEntityReader<T,E> extends AbstractBatchEntityRea
         }
         return Promise.resolve();
     }
-
-    /**
-     * Abstract method to convert a row to an entity.
-     * @abstract
-     * @param row E - The row to be converted to an entity.
-     * @returns T - The converted entity.
-     */
-    protected abstract rowToEntity(row: E): T;
 }

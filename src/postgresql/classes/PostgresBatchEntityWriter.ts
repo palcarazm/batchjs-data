@@ -6,9 +6,11 @@ import { BatchData } from "batchjs";
  * @interface
  * Options for the PostgresBatchEntityWriter.
  * @extends AbstractBatchEntityWriterStreamOptions
+ * @template T chunk entity
  */
-export interface PostgresBatchEntityWriterOptions extends AbstractBatchEntityWriterStreamOptions {
+export interface PostgresBatchEntityWriterOptions<T> extends AbstractBatchEntityWriterStreamOptions {
     pool: Pool;
+    saveEntity: (entity: T, client: PoolClient) => Promise<void>;
 }
 
 /**
@@ -17,17 +19,20 @@ export interface PostgresBatchEntityWriterOptions extends AbstractBatchEntityWri
  * @extends AbstractBatchEntityWriterStream
  * @template T chunk entity
  */
-export abstract class PostgresBatchEntityWriter<T> extends AbstractBatchEntityWriterStream<T> {
+export class PostgresBatchEntityWriter<T> extends AbstractBatchEntityWriterStream<T> {
     private readonly pool: Pool;
+    private readonly saveEntity: (entity: T, client: PoolClient) => Promise<void>;
 
     /**
      * @constructor
      * @param {PostgresBatchEntityWriterOptions} options - The options for the PostgresBatchEntityWriter.
      * @param [options.pool] {Pool} - The PostgreSQL connection pool.
+     * @param [options.saveEntity] {Function} - Function that saves an entity in the database.
      */
-    constructor(options: PostgresBatchEntityWriterOptions) {
+    constructor(options: PostgresBatchEntityWriterOptions<T>) {
         super(options);
         this.pool = options.pool;
+        this.saveEntity = options.saveEntity;
     }
 
     /**
@@ -52,15 +57,4 @@ export abstract class PostgresBatchEntityWriter<T> extends AbstractBatchEntityWr
             client.release();
         }
     }
-
-    /**
-     * Save or update an entity in the database.
-     * 
-     * @protected
-     * @abstract
-     * @param {T} entity - Entity to be saved or updated.
-     * @param {PoolClient} client - The database client.
-     * @returns {Promise<void>}
-     */
-    protected abstract saveEntity(entity: T, client: PoolClient): Promise<void>;
 }

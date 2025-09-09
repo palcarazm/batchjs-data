@@ -1,4 +1,3 @@
-import { RowDataPacket } from "mysql2";
 import { MysqlBatchEntityReader } from "../../../src/mysql";
 import { UserDTO } from "./UserDTO";
 import { UserDatabase } from "./UserDatabase";
@@ -9,10 +8,7 @@ export class UserBatchReader extends MysqlBatchEntityReader<UserDTO, UserDTO> {
       batchSize: options.batchSize,
       pool: UserDatabase.getPool(),
       query: options.query || "SELECT id, username FROM users",
+      rowToEntity: (row: UserDTO) => row,
     });
-  }
-
-  protected rowToEntity(row: UserDTO): UserDTO {
-    return row;
   }
 }

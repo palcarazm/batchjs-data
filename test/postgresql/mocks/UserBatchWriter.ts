@@ -8,12 +8,10 @@ export class UserBatchWriter extends PostgresBatchEntityWriter<UserDTO> {
     super({
       batchSize: options.batchSize,
       pool: UserDatabase.getPool(),
+      saveEntity: (entity: UserDTO, client: PoolClient) => client.query<void[]>({
+        text: "INSERT INTO users (id, username) VALUES ($1, $2)",
+        values: [entity.id, entity.username],
+      }).then(() => {}),
     });
-  }
-  protected saveEntity(entity: UserDTO, client: PoolClient): Promise<void> {
-    return client.query({
-      text: "INSERT INTO users (id, username) VALUES ($1, $2)",
-      values: [entity.id, entity.username],
-    }).then(() => {});
   }
 }

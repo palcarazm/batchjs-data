@@ -24,6 +24,8 @@ Class that read data in batches of a specified size in SQLite databases.
   |------------|-----------------------------------------|------------------------------|
   | **options** | The options for the SqliteBatchEntityReader. | SqliteBatchEntityReaderOptions |
   | **options.dbConnectionFactory** | Function that creates a database connection. | function |
+  | **options.query** | SQL query to be executed (without LIMIT and OFFSET). | string |
+  | **options.rowToEntity** | Function that converts a row to an entity. | function |
 
 
 
@@ -126,6 +128,8 @@ Class that write data in batches of a specified size in SQLite databases.
   |------------|-----------------------------------------|------------------------------|
   | **options** | The options for the SqliteBatchEntityWriter. | SqliteBatchEntityWriterOptions |
   | **options.dbConnectionFactory** | Function that creates a database connection. | function |
+  | **options.prepareStatementString** | Insert SQL prepared statement to be executed. | string |
+  | **options.saveEntity** | Function that saves an entity in the database. | function |
 
 
 

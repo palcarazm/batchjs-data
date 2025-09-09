@@ -7,10 +7,8 @@ import { UserDatabase } from "./UserDatabase";
         super({
           batchSize: options.batchSize,
           pool: UserDatabase.getPool(),
-          query: options.query || "SELECT id, username FROM users"
+          query: options.query || "SELECT id, username FROM users",
+          rowToEntity: (row: UserDTO) => row
         });
-      }
-      protected rowToEntity(row: UserDTO): UserDTO {
-        return row;
       }
     }

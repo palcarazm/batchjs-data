@@ -9,10 +9,7 @@ export class UserBatchWriter extends MariadbBatchEntityWriter<UserDTO,UserEntity
       batchSize: options.batchSize,
       pool: UserDatabase.getPool(),
       prepareStatement: "INSERT INTO users (id, username) VALUES (?, ?)",
+      entityToRow: (entity: UserDTO) => [entity.id, entity.username],
     });
-  }
-
-  protected entityToRow(entity: UserDTO): UserEntity {
-    return [entity.id, entity.username];
   }
 }

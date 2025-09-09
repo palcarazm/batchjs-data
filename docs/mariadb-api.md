@@ -25,6 +25,7 @@ Class that read data in batches of a specified size in Mariadb databases.
   | **options** | The options for the MariadbBatchEntityReader. | MariadbBatchEntityReaderOptions |
   | **options.pool** | The MariadbQL connection pool. | Pool |
   | **options.query** | SQL query to be executed (without LIMIT and OFFSET). | string |
+  | **options.rowToEntity** | Function that converts a row to an entity. | function |
 
 
 
@@ -128,6 +129,7 @@ Class that writes data in batches of a specified size in MariadbQL databases.
   | **options** | The options for the MariadbBatchEntityWriter. | MariadbBatchEntityWriterOptions |
   | **options.pool** | The MariadbQL connection pool. | Pool |
   | **options.prepareStatement** | Insert SQL prepared statement to be executed. | String |
+  | **options.entityToRow** | Function that converts an entity to a row. | function |
 
 
 
