@@ -6,10 +6,13 @@ import { BatchData, ReadCallback } from "batchjs";
  * @interface
  * Options for the MariadbBatchEntityReader.
  * @extends AbstractBatchEntityReaderStreamOptions
+ * @template T chunk entity
+ * @template E row entity
  */
-export interface MariadbBatchEntityReaderOptions extends AbstractBatchEntityReaderStreamOptions {
+export interface MariadbBatchEntityReaderOptions<T,E> extends AbstractBatchEntityReaderStreamOptions {
     pool: Pool;
     query: string;
+    rowToEntity:(row: E) => T
 }
 
 /**
@@ -19,9 +22,10 @@ export interface MariadbBatchEntityReaderOptions extends AbstractBatchEntityRead
  * @template T chunk entity
  * @template E row entity
  */
-export abstract class MariadbBatchEntityReader<T,E> extends AbstractBatchEntityReaderStream<T> {
+export class MariadbBatchEntityReader<T,E> extends AbstractBatchEntityReaderStream<T> {
     private readonly pool: Pool;
     private readonly query: string;
+    private readonly rowToEntity:(row: E) => T;
     private client: PoolConnection | null = null;
     private fetchEntityStatement: Prepare | null = null;
     private entitiesRead : number = 0;
@@ -31,11 +35,13 @@ export abstract class MariadbBatchEntityReader<T,E> extends AbstractBatchEntityR
      * @param {MariadbBatchEntityReaderOptions} options - The options for the MariadbBatchEntityReader.
      * @param [options.pool] {Pool} - The MariadbQL connection pool.
      * @param [options.query] {string} - SQL query to be executed (without LIMIT and OFFSET).
+     * @param [options.rowToEntity] {Function} - Function that converts a row to an entity.
      */
-    constructor(options: MariadbBatchEntityReaderOptions) {
+    constructor(options: MariadbBatchEntityReaderOptions<T,E>) {
         super(options);
         this.pool = options.pool;
         this.query = options.query;
+        this.rowToEntity = options.rowToEntity;
     }
 
     /**
@@ -124,15 +130,4 @@ export abstract class MariadbBatchEntityReader<T,E> extends AbstractBatchEntityR
             this.fetchEntityStatement = null;
         }
     }
-
-
-    /**
-     * Abstract method to convert a row to an entity. This method should be implemented
-     * by subclasses to define the specific logic for reading a batch of data.
-     * 
-     * @abstract
-     * @protected
-     * @param row {E} - The row to be converted to an entity.
-     */
-    protected abstract rowToEntity(row: E): T
 }

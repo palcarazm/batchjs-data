@@ -6,10 +6,13 @@ import { BatchData, ReadCallback } from "batchjs";
  * @interface
  * Options for the SqliteBatchEntityReader.
  * @extends AbstractBatchEntityReaderStreamOptions
+ * @template T chunk entity
+ * @template E row entity
  */
-export interface SqliteBatchEntityReaderOptions extends AbstractBatchEntityReaderStreamOptions {
+export interface SqliteBatchEntityReaderOptions<T,E> extends AbstractBatchEntityReaderStreamOptions {
     dbConnectionFactory: ()=>Promise<sqlite.Database>;
     query: string;
+    rowToEntity:(row: E)=> T
 }
 
 /**
@@ -19,10 +22,11 @@ export interface SqliteBatchEntityReaderOptions extends AbstractBatchEntityReade
  * @template T chunk entity
  * @template E row entity
  */
-export abstract class SqliteBatchEntityReader<T,E> extends AbstractBatchEntityReaderStream<T> {
+export class SqliteBatchEntityReader<T,E> extends AbstractBatchEntityReaderStream<T> {
     private readonly dbConnectionFactory: ()=>Promise<sqlite.Database>;
     private dbConnection: sqlite.Database | null = null;
     private readonly query: string;
+    private readonly rowToEntity:(row: E)=> T;
     private fetchEntityStatement: sqlite.Statement | null = null;
     private entitiesRead : number = 0;
 
@@ -30,11 +34,14 @@ export abstract class SqliteBatchEntityReader<T,E> extends AbstractBatchEntityRe
      * @constructor
      * @param {SqliteBatchEntityReaderOptions} options - The options for the SqliteBatchEntityReader.
      * @param [options.dbConnectionFactory] {Function} - Function that creates a database connection.
+     * @param [options.query] {string} - SQL query to be executed (without LIMIT and OFFSET).
+     * @param [options.rowToEntity] {Function} - Function that converts a row to an entity.
      */
-    constructor(options: SqliteBatchEntityReaderOptions) {
+    constructor(options: SqliteBatchEntityReaderOptions<T,E>) {
         super(options);
         this.dbConnectionFactory = options.dbConnectionFactory;
         this.query = options.query;
+        this.rowToEntity = options.rowToEntity;
     }
 
     /**
@@ -122,15 +129,4 @@ export abstract class SqliteBatchEntityReader<T,E> extends AbstractBatchEntityRe
             this.fetchEntityStatement = null;
         }
     }
-
-
-    /**
-     * Abstract method to convert a row to an entity. This method should be implemented
-     * by subclasses to define the specific logic for reading a batch of data.
-     * 
-     * @abstract
-     * @protected
-     * @param row {E} - The row to be converted to an entity.
-     */
-    protected abstract rowToEntity(row: E): T
 }

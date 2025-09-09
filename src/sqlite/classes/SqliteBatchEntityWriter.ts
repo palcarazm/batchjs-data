@@ -6,10 +6,12 @@ import { BatchData, WriteCallback } from "batchjs";
  * @interface
  * Options for the SqliteBatchEntityWriter.
  * @extends AbstractBatchEntityWriterStreamOptions
+ * @template T chunk entity
  */
-export interface SqliteBatchEntityWriterOptions extends AbstractBatchEntityWriterStreamOptions {
+export interface SqliteBatchEntityWriterOptions<T> extends AbstractBatchEntityWriterStreamOptions {
     dbConnectionFactory: ()=>Promise<sqlite.Database>;
     prepareStatement: string;
+    saveEntity:(entity: T, stmt: sqlite.Statement) => Promise<void>
 }
 
 /**
@@ -18,20 +20,24 @@ export interface SqliteBatchEntityWriterOptions extends AbstractBatchEntityWrite
  * @extends AbstractBatchEntityWriterStream
  * @template T chunk entity
  */
-export abstract class SqliteBatchEntityWriter<T> extends AbstractBatchEntityWriterStream<T> {
+export class SqliteBatchEntityWriter<T> extends AbstractBatchEntityWriterStream<T> {
     private readonly dbConnectionFactory: ()=>Promise<sqlite.Database>;
     private readonly prepareStatementString: string;
+    private readonly saveEntity:(entity: T, stmt: sqlite.Statement) => Promise<void>;
     private saveEntityStatement: sqlite.Statement | null = null;
 
     /**
      * @constructor
      * @param {SqliteBatchEntityWriterOptions} options - The options for the SqliteBatchEntityWriter.
      * @param [options.dbConnectionFactory] {Function} - Function that creates a database connection.
+     * @param [options.prepareStatementString] {string} - Insert SQL prepared statement to be executed.
+     * @param [options.saveEntity] {Function} - Function that saves an entity in the database.
      */
-    constructor(options: SqliteBatchEntityWriterOptions) {
+    constructor(options: SqliteBatchEntityWriterOptions<T>) {
         super(options);
         this.dbConnectionFactory = options.dbConnectionFactory;
         this.prepareStatementString = options.prepareStatement;
+        this.saveEntity = options.saveEntity;
     }
 
     /**
@@ -137,17 +143,4 @@ export abstract class SqliteBatchEntityWriter<T> extends AbstractBatchEntityWrit
                 .catch((error) => callback(error));
         });
     }
-
-    /**
-     * Save or update an entity in the database.This method should be implemented
-     * by subclasses to define the specific logic for writing a batch of data.
-     * 
-     * @protected
-     * @abstract
-     * @param entity {T} - Entity to be added or updated in the database
-     * @param stmt {sqlite.Statement} - Database Statement
-     * @returns {Promise<void>}
-     */
-    protected abstract saveEntity(entity: T, stmt: sqlite.Statement): Promise<void>;
-
 }

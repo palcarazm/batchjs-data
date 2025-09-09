@@ -6,10 +6,13 @@ import { AbstractBatchEntityWriterStream, AbstractBatchEntityWriterStreamOptions
  * @interface
  * Options for the MysqlBatchEntityWriter.
  * @extends AbstractBatchEntityWriterStreamOptions
+ * @template T chunk entity
+ * @template E row entity
  */
-export interface MysqlBatchEntityWriterOptions extends AbstractBatchEntityWriterStreamOptions {
+export interface MysqlBatchEntityWriterOptions<T,E> extends AbstractBatchEntityWriterStreamOptions {
     pool: Pool;
     prepareStatement: string;
+    entityToRow:(entity: T) => E
 }
 
 /**
@@ -19,20 +22,23 @@ export interface MysqlBatchEntityWriterOptions extends AbstractBatchEntityWriter
  * @template T chunk entity
  * @template E row entity
  */
-export abstract class MysqlBatchEntityWriter<T,E> extends AbstractBatchEntityWriterStream<T> {
+export class MysqlBatchEntityWriter<T,E> extends AbstractBatchEntityWriterStream<T> {
     private readonly pool: Pool;
     private readonly prepareStatement: string;
+    private readonly entityToRow:(entity: T) => E;
 
     /**
      * @constructor
      * @param {MysqlBatchEntityWriterOptions} options - The options for the MysqlBatchEntityWriter.
      * @param [options.pool] {Pool} - The MySQL connection pool.
      * @param [options.prepareStatement] {String} - Insert SQL prepared statement to be executed.
+     * @param [options.entityToRow] {Function} - Function that converts an entity to a row.
      */
-    constructor(options: MysqlBatchEntityWriterOptions) {
+    constructor(options: MysqlBatchEntityWriterOptions<T,E>) {
         super(options);
         this.pool = options.pool;
         this.prepareStatement = options.prepareStatement;
+        this.entityToRow = options.entityToRow;
     }
 
     /**
@@ -56,15 +62,4 @@ export abstract class MysqlBatchEntityWriter<T,E> extends AbstractBatchEntityWri
             client.release();
         }
     }
-
-    /**
-     * Abstract method to convert an entity to a row.
-     * This method should be implemented by subclasses to define the specific logic for writing a batch of data.
-     * 
-     * @abstract
-     * @protected
-     * @param {T} entity - The entity to be converted to a row.
-     * @returns {E} The row to be inserted or updated.
-     */
-    protected abstract entityToRow(entity: T): E;
 }

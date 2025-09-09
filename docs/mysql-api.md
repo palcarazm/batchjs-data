@@ -25,6 +25,7 @@ Class that reads data in batches of a specified size from a MySQL database.
   | **options** | The options for the MysqlBatchEntityReader. | MysqlBatchEntityReaderOptions |
   | **options.pool** | The MySQL connection pool. | Pool |
   | **options.query** | SQL query to be executed (without LIMIT and OFFSET). | string |
+  | **options.rowToEntity** | Function that converts a row to an entity. | function |
 
 
 
@@ -101,6 +102,7 @@ Class that writes data in batches of a specified size into a MySQL database.
   | **options** | The options for the MysqlBatchEntityWriter. | MysqlBatchEntityWriterOptions |
   | **options.pool** | The MySQL connection pool. | Pool |
   | **options.prepareStatement** | Insert SQL prepared statement to be executed. | String |
+  | **options.entityToRow** | Function that converts an entity to a row. | function |
 
 
 

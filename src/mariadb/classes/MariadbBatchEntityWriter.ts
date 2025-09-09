@@ -6,10 +6,13 @@ import { BatchData } from "batchjs";
  * @interface
  * Options for the MariadbBatchEntityWriter.
  * @extends AbstractBatchEntityWriterStreamOptions
+ * @template T chunk entity
+ * @template E row entity
  */
-export interface MariadbBatchEntityWriterOptions extends AbstractBatchEntityWriterStreamOptions {
+export interface MariadbBatchEntityWriterOptions<T,E> extends AbstractBatchEntityWriterStreamOptions {
     pool: Pool;
     prepareStatement: string;
+    entityToRow:(entity: T) => E
 }
 
 /**
@@ -19,20 +22,23 @@ export interface MariadbBatchEntityWriterOptions extends AbstractBatchEntityWrit
  * @template T chunk entity
  * @template E row entity
  */
-export abstract class MariadbBatchEntityWriter<T,E> extends AbstractBatchEntityWriterStream<T> {
+export class MariadbBatchEntityWriter<T,E> extends AbstractBatchEntityWriterStream<T> {
     private readonly pool: Pool;
     private readonly prepareStatement: string;
+    private readonly entityToRow:(entity: T) => E;
 
     /**
      * @constructor
      * @param {MariadbBatchEntityWriterOptions} options - The options for the MariadbBatchEntityWriter.
      * @param [options.pool] {Pool} - The MariadbQL connection pool.
      * @param [options.prepareStatement] {String} - Insert SQL prepared statement to be executed.
+     * @param [options.entityToRow] {Function} - Function that converts an entity to a row.
      */
-    constructor(options: MariadbBatchEntityWriterOptions) {
+    constructor(options: MariadbBatchEntityWriterOptions<T,E>) {
         super(options);
         this.pool = options.pool;
         this.prepareStatement = options.prepareStatement;
+        this.entityToRow = options.entityToRow;
     }
 
     /**
@@ -55,15 +61,4 @@ export abstract class MariadbBatchEntityWriter<T,E> extends AbstractBatchEntityW
             client.release();
         }
     }
-
-    /**
-     * Abstract method to convert an entity to a row.
-     * This method should be implemented by subclasses to define the specific logic for writing a batch of data.
-     * 
-     * @abstract
-     * @protected
-     * @param {T} entity - The entity to be converted to a row.
-     * @returns {E} The row to be inserted or updated.
-     */
-    protected abstract entityToRow(entity: T): E;
 }

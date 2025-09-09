@@ -25,6 +25,7 @@ Class that reads data in batches of a specified size using PostgreSQL cursors.
   | **options** | The options for the PostgresBatchEntityReader. | PostgresBatchEntityReaderOptions |
   | **options.pool** | The PostgreSQL connection pool. | Pool |
   | **options.query** | SQL query to be executed (without LIMIT and OFFSET). | string |
+  | **options.rowToEntity** | Function that converts a row to an entity. | function |
 
 
 
@@ -95,6 +96,7 @@ Class that writes data in batches of a specified size in PostgreSQL databases.
   |------------|-----------------------------------------|------------------------------|
   | **options** | The options for the PostgresBatchEntityWriter. | PostgresBatchEntityWriterOptions |
   | **options.pool** | The PostgreSQL connection pool. | Pool |
+  | **options.saveEntity** | Function that saves an entity in the database. | function |
 
 
 
