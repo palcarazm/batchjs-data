@@ -57,17 +57,14 @@ yarn add sqlite sqlite3  #For SQLite implementation
     import { SqliteBatchEntityReader } from "batchjs-data/sqlite";
     import { UserDTO } from "./UserDTO";
 
-    export class UserBatchReader extends SqliteBatchEntityReader<UserDTO> {
+    export class UserBatchReader extends SqliteBatchEntityReader<UserDTO,UserDTO> {
         constructor(options:{batchSize:number,query?:string}) {
             super({
                 batchSize: options.batchSize,
                 dbConnectionFactory: () => { return open({filename: './database.db', driver: sqlite3.Database});},
-                query: options.query || "SELECT id, username FROM users"
+                query: options.query || "SELECT id, username FROM users",
+                rowToEntity: (row: UserDTO) => row
             });
-        }
-    
-        protected rowToEntity(row: unknown): UserDTO {
-            return row as UserDTO;
         }
     }
     ```
@@ -83,11 +80,9 @@ yarn add sqlite sqlite3  #For SQLite implementation
             super({
                 batchSize: options.batchSize,
                 dbConnectionFactory: () => { return open({filename: './database.db', driver: sqlite3.Database});},
-                prepareStatement: "INSERT INTO users (id, username) VALUES (@id, @username)"
+                prepareStatement: "INSERT INTO users (id, username) VALUES (@id, @username)",
+                saveEntity:(entity: UserDTO, stmt: sqlite.Statement)=>stmt.all<void>({'@id': entity.id, '@username': entity.username})
             });
-        }
-        protected saveEntity(entity: UserDTO, stmt: sqlite.Statement): Promise<void> {
-            return stmt.all<void>({'@id': entity.id, '@username': entity.username});
         }
     }
     ```
