@@ -6,12 +6,15 @@ import { BatchData, ReadCallback } from "batchjs";
  * @interface
  * Options for the MysqlBatchEntityReader.
  * @extends AbstractBatchEntityReaderStreamOptions
- * @template T chunk entity
- * @template E row entity
+ * @template T The type of the data to be read
+ * @template E The type of the row data from the database
  */
 export interface MysqlBatchEntityReaderOptions<T,E> extends AbstractBatchEntityReaderStreamOptions {
+    /** The MySQL connection pool. */
     pool: Pool;
+    /** SQL query to be executed (without LIMIT and OFFSET). */
     query: string;
+    /** Function that converts a row to an entity. */
     rowToEntity:(row: E) => T
 }
 
@@ -19,8 +22,8 @@ export interface MysqlBatchEntityReaderOptions<T,E> extends AbstractBatchEntityR
  * @class
  * Class that reads data in batches of a specified size from a MySQL database.
  * @extends AbstractBatchEntityReaderStream
- * @template T chunk entity
- * @template E row entity
+ * @template T The type of the data to be read
+ * @template E The type of the row data from the database
  */
 export class MysqlBatchEntityReader<T,E> extends AbstractBatchEntityReaderStream<T> {
     private readonly pool: Pool;
@@ -30,11 +33,8 @@ export class MysqlBatchEntityReader<T,E> extends AbstractBatchEntityReaderStream
     private entitiesRead: number = 0;
 
     /**
-     * @constructor
+     
      * @param {MysqlBatchEntityReaderOptions} options - The options for the MysqlBatchEntityReader.
-     * @param [options.pool] {Pool} - The MySQL connection pool.
-     * @param [options.query] {string} - SQL query to be executed (without LIMIT and OFFSET).
-     * @param [options.rowToEntity] {Function} - Function that converts a row to an entity.
      */
     constructor(options: MysqlBatchEntityReaderOptions<T,E>) {
         super(options);

@@ -6,12 +6,15 @@ import { BatchData, ReadCallback } from "batchjs";
  * @interface
  * Options for the MariadbBatchEntityReader.
  * @extends AbstractBatchEntityReaderStreamOptions
- * @template T chunk entity
- * @template E row entity
+ * @template T The type of the data to be read
+ * @template E The type of the row data from the database
  */
 export interface MariadbBatchEntityReaderOptions<T,E> extends AbstractBatchEntityReaderStreamOptions {
+    /** The MariadbQL connection pool. */
     pool: Pool;
+    /** SQL query to be executed (without LIMIT and OFFSET). */
     query: string;
+    /** Function that converts a row to an entity. */
     rowToEntity:(row: E) => T
 }
 
@@ -19,8 +22,8 @@ export interface MariadbBatchEntityReaderOptions<T,E> extends AbstractBatchEntit
  * @class
  * Class that read data in batches of a specified size in Mariadb databases.
  * @extends AbstractBatchEntityReaderStream
- * @template T chunk entity
- * @template E row entity
+ * @template T The type of the data to be read
+ * @template E The type of the row data from the database
  */
 export class MariadbBatchEntityReader<T,E> extends AbstractBatchEntityReaderStream<T> {
     private readonly pool: Pool;
@@ -31,11 +34,8 @@ export class MariadbBatchEntityReader<T,E> extends AbstractBatchEntityReaderStre
     private entitiesRead : number = 0;
 
     /**
-     * @constructor
+     
      * @param {MariadbBatchEntityReaderOptions} options - The options for the MariadbBatchEntityReader.
-     * @param [options.pool] {Pool} - The MariadbQL connection pool.
-     * @param [options.query] {string} - SQL query to be executed (without LIMIT and OFFSET).
-     * @param [options.rowToEntity] {Function} - Function that converts a row to an entity.
      */
     constructor(options: MariadbBatchEntityReaderOptions<T,E>) {
         super(options);

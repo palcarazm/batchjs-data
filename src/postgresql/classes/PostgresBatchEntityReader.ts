@@ -6,12 +6,15 @@ import { BatchData } from "batchjs";
  * @interface
  * Options for the PostgresBatchEntityReader.
  * @extends AbstractBatchEntityReaderStreamOptions
- * @template T chunk entity
- * @template E row entity
+ * @template T The type of the data to be read
+ * @template E The type of the row data from the database
  */
 export interface PostgresBatchEntityReaderOptions<T,E> extends AbstractBatchEntityReaderStreamOptions {
-    pool: Pool; // The PostgreSQL connection pool
-    query: string; // SQL query (without LIMIT and OFFSET)
+    /** The PostgreSQL connection pool */
+    pool: Pool;
+    /** SQL query to be executed (without LIMIT and OFFSET) */
+    query: string;
+    /** Function that converts a row to an entity */
     rowToEntity:(row: E) => T
 }
 
@@ -19,8 +22,8 @@ export interface PostgresBatchEntityReaderOptions<T,E> extends AbstractBatchEnti
  * @class
  * Class that reads data in batches of a specified size using PostgreSQL cursors.
  * @extends AbstractBatchEntityReaderStream
- * @template T chunk entity
- * @template E row entity
+ * @template T The type of the data to be read
+ * @template E The type of the row data from the database
  */
 export class PostgresBatchEntityReader<T,E> extends AbstractBatchEntityReaderStream<T> {
     private readonly pool: Pool;
@@ -31,11 +34,8 @@ export class PostgresBatchEntityReader<T,E> extends AbstractBatchEntityReaderStr
     private cursorOpened: boolean = false;
 
     /**
-     * @constructor
+     
      * @param {PostgresBatchEntityReaderOptions} options - The options for the PostgresBatchEntityReader.
-     * @param [options.pool] {Pool} - The PostgreSQL connection pool.
-     * @param [options.query] {string} - SQL query to be executed (without LIMIT and OFFSET).
-     * @param [options.rowToEntity] {Function} - Function that converts a row to an entity.
      */
     constructor(options: PostgresBatchEntityReaderOptions<T,E>) {
         super(options);

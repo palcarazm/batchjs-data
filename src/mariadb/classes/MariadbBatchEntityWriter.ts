@@ -6,12 +6,15 @@ import { BatchData } from "batchjs";
  * @interface
  * Options for the MariadbBatchEntityWriter.
  * @extends AbstractBatchEntityWriterStreamOptions
- * @template T chunk entity
- * @template E row entity
+ * @template T The type of the data to be written
+ * @template E The type of the row data from the database
  */
 export interface MariadbBatchEntityWriterOptions<T,E> extends AbstractBatchEntityWriterStreamOptions {
+    /** The MariadbQL connection pool. */
     pool: Pool;
+    /** The prepared statement for inserting entities. */
     prepareStatement: string;
+    /** Function that converts an entity to a row. */
     entityToRow:(entity: T) => E
 }
 
@@ -19,8 +22,8 @@ export interface MariadbBatchEntityWriterOptions<T,E> extends AbstractBatchEntit
  * @class
  * Class that writes data in batches of a specified size in MariadbQL databases.
  * @extends AbstractBatchEntityWriterStream
- * @template T chunk entity
- * @template E row entity
+ * @template T The type of the data to be written
+ * @template E The type of the row data from the database
  */
 export class MariadbBatchEntityWriter<T,E> extends AbstractBatchEntityWriterStream<T> {
     private readonly pool: Pool;
@@ -28,11 +31,8 @@ export class MariadbBatchEntityWriter<T,E> extends AbstractBatchEntityWriterStre
     private readonly entityToRow:(entity: T) => E;
 
     /**
-     * @constructor
+     
      * @param {MariadbBatchEntityWriterOptions} options - The options for the MariadbBatchEntityWriter.
-     * @param [options.pool] {Pool} - The MariadbQL connection pool.
-     * @param [options.prepareStatement] {String} - Insert SQL prepared statement to be executed.
-     * @param [options.entityToRow] {Function} - Function that converts an entity to a row.
      */
     constructor(options: MariadbBatchEntityWriterOptions<T,E>) {
         super(options);

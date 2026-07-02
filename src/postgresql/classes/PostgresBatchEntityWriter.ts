@@ -6,10 +6,12 @@ import { BatchData } from "batchjs";
  * @interface
  * Options for the PostgresBatchEntityWriter.
  * @extends AbstractBatchEntityWriterStreamOptions
- * @template T chunk entity
+ * @template T The type of the data to be written
  */
 export interface PostgresBatchEntityWriterOptions<T> extends AbstractBatchEntityWriterStreamOptions {
+    /** The PostgreSQL connection pool. */
     pool: Pool;
+    /** Function that saves an entity in the database. */
     saveEntity: (entity: T, client: PoolClient) => Promise<void>;
 }
 
@@ -17,17 +19,15 @@ export interface PostgresBatchEntityWriterOptions<T> extends AbstractBatchEntity
  * @class
  * Class that writes data in batches of a specified size in PostgreSQL databases.
  * @extends AbstractBatchEntityWriterStream
- * @template T chunk entity
+ * @template T The type of the data to be written
  */
 export class PostgresBatchEntityWriter<T> extends AbstractBatchEntityWriterStream<T> {
     private readonly pool: Pool;
     private readonly saveEntity: (entity: T, client: PoolClient) => Promise<void>;
 
     /**
-     * @constructor
+     
      * @param {PostgresBatchEntityWriterOptions} options - The options for the PostgresBatchEntityWriter.
-     * @param [options.pool] {Pool} - The PostgreSQL connection pool.
-     * @param [options.saveEntity] {Function} - Function that saves an entity in the database.
      */
     constructor(options: PostgresBatchEntityWriterOptions<T>) {
         super(options);

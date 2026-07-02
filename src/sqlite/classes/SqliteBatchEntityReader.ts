@@ -6,12 +6,15 @@ import { BatchData, ReadCallback } from "batchjs";
  * @interface
  * Options for the SqliteBatchEntityReader.
  * @extends AbstractBatchEntityReaderStreamOptions
- * @template T chunk entity
- * @template E row entity
+ * @template T The type of the data to be read
+ * @template E The type of the row data from the database
  */
 export interface SqliteBatchEntityReaderOptions<T,E> extends AbstractBatchEntityReaderStreamOptions {
+    /** The function that creates a database connection */
     dbConnectionFactory: ()=>Promise<sqlite.Database>;
+    /** SQL query to be executed (without LIMIT and OFFSET) */
     query: string;
+    /** Function that converts a row to an entity */
     rowToEntity:(row: E)=> T
 }
 
@@ -19,8 +22,8 @@ export interface SqliteBatchEntityReaderOptions<T,E> extends AbstractBatchEntity
  * @class
  * Class that read data in batches of a specified size in SQLite databases.
  * @extends AbstractBatchEntityReaderStream
- * @template T chunk entity
- * @template E row entity
+ * @template T The type of the data to be read
+ * @template E The type of the row data from the database
  */
 export class SqliteBatchEntityReader<T,E> extends AbstractBatchEntityReaderStream<T> {
     private readonly dbConnectionFactory: ()=>Promise<sqlite.Database>;
@@ -31,11 +34,8 @@ export class SqliteBatchEntityReader<T,E> extends AbstractBatchEntityReaderStrea
     private entitiesRead : number = 0;
 
     /**
-     * @constructor
+     
      * @param {SqliteBatchEntityReaderOptions} options - The options for the SqliteBatchEntityReader.
-     * @param [options.dbConnectionFactory] {Function} - Function that creates a database connection.
-     * @param [options.query] {string} - SQL query to be executed (without LIMIT and OFFSET).
-     * @param [options.rowToEntity] {Function} - Function that converts a row to an entity.
      */
     constructor(options: SqliteBatchEntityReaderOptions<T,E>) {
         super(options);

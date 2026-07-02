@@ -14,8 +14,7 @@
   "module": "dist/esm/index.js",
   "types": "dist/@types",
   "files": [
-    "dist",
-    "docs"
+    "dist"
   ],
   "scripts": {
     "prepack": "npm run build",
@@ -23,12 +22,12 @@
     "build:esm": "tsc --project tsconfig.esm.json",
     "build": "npm run build:cjs && npm run build:esm",
     "build:watch": "tsc --build tsconfig.cjs.json --watch",
-    "docs": "npm run docs:common && npm run docs:sqlite && npm run docs:postgresql && npm run docs:mariadb && npm run docs:mysql",
-    "docs:common": "jsdoc2md --files ./src/common/**/*.ts --helper ./scripts/jsdoc2md/helpers.js --configure ./scripts/jsdoc2md/jsdoc2md.rc --template ./scripts/jsdoc2md/template-common.hbs > ./docs/common-api.md",
-    "docs:sqlite": "jsdoc2md --files ./src/sqlite/**/*.ts --helper ./scripts/jsdoc2md/helpers.js --configure ./scripts/jsdoc2md/jsdoc2md.rc --template ./scripts/jsdoc2md/template-common.hbs > ./docs/sqlite-api.md",
-    "docs:postgresql": "jsdoc2md --files ./src/postgresql/**/*.ts --helper ./scripts/jsdoc2md/helpers.js --configure ./scripts/jsdoc2md/jsdoc2md.rc --template ./scripts/jsdoc2md/template-common.hbs > ./docs/postgresql-api.md",
-    "docs:mariadb": "jsdoc2md --files ./src/mariadb/**/*.ts --helper ./scripts/jsdoc2md/helpers.js --configure ./scripts/jsdoc2md/jsdoc2md.rc --template ./scripts/jsdoc2md/template-common.hbs > ./docs/mariadb-api.md",
-    "docs:mysql": "jsdoc2md --files ./src/mysql/**/*.ts --helper ./scripts/jsdoc2md/helpers.js --configure ./scripts/jsdoc2md/jsdoc2md.rc --template ./scripts/jsdoc2md/template-common.hbs > ./docs/mysql-api.md",
+    "docs": "npm run docs:api && npm run docs:build",
+    "docs:api": "typedoc && npm run docs:api:postprocess",
+    "docs:api:postprocess": "node scripts/typedoc-api-sidebar.mjs",
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:serve": "vitepress serve docs",
     "test": "jest --coverage",
     "lint": "eslint ./src",
     "prepare": "husky"
@@ -49,6 +48,10 @@
     "url": "https://github.com/palcarazm/batchjs-data/issues"
   },
   "homepage": "https://github.com/palcarazm/batchjs-data#readme",
+  "engines": {
+    "node": ">=22 <27",
+    "npm": ">=10"
+  },
   "devDependencies": {
     "@babel/core": "^7.24.9",
     "@babel/preset-env": "^7.24.8",
@@ -65,16 +68,16 @@
     "globals": "^17.3.0",
     "husky": "^9.0.11",
     "jest": "^30.1.3",
-    "jsdoc": "^4.0.3",
-    "jsdoc-babel": "^0.5.0",
-    "jsdoc-to-markdown": "^9.0.5",
     "mariadb": "^3",
     "mysql2": "^3",
     "pg": "^8",
     "sqlite": "^5",
     "sqlite3": "^5",
     "ts-jest": "^29.2.3",
-    "typescript": "^5.5.4"
+    "typedoc": "^0.28.0",
+    "typedoc-plugin-markdown": "^4.12.0",
+    "typescript": "^5.5.4",
+    "vitepress": "^1.4.0"
   },
   "peerDependencies": {
     "batchjs": ">=2.0.0-0 & <3",
