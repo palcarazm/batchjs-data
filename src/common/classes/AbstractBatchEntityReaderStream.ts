@@ -6,6 +6,7 @@ import { ObjectReadable, ObjectReadableOptions, BatchData, ExtendableReadableEve
  * @extends ObjectReadableOptions
  */
 export interface AbstractBatchEntityReaderStreamOptions extends ObjectReadableOptions {
+    /** The maximum number of entities to read at once. */
     batchSize: number;
 }
 
@@ -25,9 +26,8 @@ export abstract class AbstractBatchEntityReaderStream<T> extends ObjectReadable<
     private readonly batchSize: number;
 
     /**
-     * @constructor
+     
      * @param {AbstractBatchEntityReaderStreamOptions} options - The options for the AbstractBatchEntityReaderStream.
-     * @param [options.batchSize] {number} - The maximum number of elements in a batch.
      */
     constructor(options: AbstractBatchEntityReaderStreamOptions) {
         super(options);

@@ -9,8 +9,11 @@ import { BatchData, WriteCallback } from "batchjs";
  * @template T chunk entity
  */
 export interface SqliteBatchEntityWriterOptions<T> extends AbstractBatchEntityWriterStreamOptions {
+    /** The function that creates a database connection */
     dbConnectionFactory: ()=>Promise<sqlite.Database>;
+    /** The SQL prepared statement for inserting entities */
     prepareStatement: string;
+    /** The function that saves an entity in the database */
     saveEntity:(entity: T, stmt: sqlite.Statement) => Promise<void>
 }
 
@@ -27,11 +30,8 @@ export class SqliteBatchEntityWriter<T> extends AbstractBatchEntityWriterStream<
     private saveEntityStatement: sqlite.Statement | null = null;
 
     /**
-     * @constructor
+     
      * @param {SqliteBatchEntityWriterOptions} options - The options for the SqliteBatchEntityWriter.
-     * @param [options.dbConnectionFactory] {Function} - Function that creates a database connection.
-     * @param [options.prepareStatementString] {string} - Insert SQL prepared statement to be executed.
-     * @param [options.saveEntity] {Function} - Function that saves an entity in the database.
      */
     constructor(options: SqliteBatchEntityWriterOptions<T>) {
         super(options);

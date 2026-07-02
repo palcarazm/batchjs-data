@@ -152,11 +152,18 @@ yarn add sqlite sqlite3  #For SQLite implementation
 
 # Documentation
 
-- [Core API](./docs/common-api.md)
-- [MariaDB API](./docs/mariadb-api.md)
-- [MySQL API](./docs/mysql-api.md)
-- [PostgreSQL API](./docs/postgresql-api.md)
-- [SQLite API](./docs/sqlite-api.md)
+- [Documentation site](https://palcarazm.github.io/batchjs-data/)
+- [Core API](https://palcarazm.github.io/batchjs-data/api/common)
+- [MariaDB API](https://palcarazm.github.io/batchjs-data/api/mariadb)
+- [MySQL API](https://palcarazm.github.io/batchjs-data/api/mysql)
+- [PostgreSQL API](https://palcarazm.github.io/batchjs-data/api/postgresql)
+- [SQLite API](https://palcarazm.github.io/batchjs-data/api/sqlite)
+
+To preview the documentation locally, run:
+
+```sh
+npm run docs
+```
 
 # Collaborators welcome!
 

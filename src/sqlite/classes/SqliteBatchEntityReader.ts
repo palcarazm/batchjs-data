@@ -10,8 +10,11 @@ import { BatchData, ReadCallback } from "batchjs";
  * @template E row entity
  */
 export interface SqliteBatchEntityReaderOptions<T,E> extends AbstractBatchEntityReaderStreamOptions {
+    /** The function that creates a database connection */
     dbConnectionFactory: ()=>Promise<sqlite.Database>;
+    /** SQL query to be executed (without LIMIT and OFFSET) */
     query: string;
+    /** Function that converts a row to an entity */
     rowToEntity:(row: E)=> T
 }
 
@@ -31,11 +34,8 @@ export class SqliteBatchEntityReader<T,E> extends AbstractBatchEntityReaderStrea
     private entitiesRead : number = 0;
 
     /**
-     * @constructor
+     
      * @param {SqliteBatchEntityReaderOptions} options - The options for the SqliteBatchEntityReader.
-     * @param [options.dbConnectionFactory] {Function} - Function that creates a database connection.
-     * @param [options.query] {string} - SQL query to be executed (without LIMIT and OFFSET).
-     * @param [options.rowToEntity] {Function} - Function that converts a row to an entity.
      */
     constructor(options: SqliteBatchEntityReaderOptions<T,E>) {
         super(options);

@@ -10,8 +10,11 @@ import { BatchData, ReadCallback } from "batchjs";
  * @template E row entity
  */
 export interface MariadbBatchEntityReaderOptions<T,E> extends AbstractBatchEntityReaderStreamOptions {
+    /** The MariadbQL connection pool. */
     pool: Pool;
+    /** SQL query to be executed (without LIMIT and OFFSET). */
     query: string;
+    /** Function that converts a row to an entity. */
     rowToEntity:(row: E) => T
 }
 
@@ -31,11 +34,8 @@ export class MariadbBatchEntityReader<T,E> extends AbstractBatchEntityReaderStre
     private entitiesRead : number = 0;
 
     /**
-     * @constructor
+     
      * @param {MariadbBatchEntityReaderOptions} options - The options for the MariadbBatchEntityReader.
-     * @param [options.pool] {Pool} - The MariadbQL connection pool.
-     * @param [options.query] {string} - SQL query to be executed (without LIMIT and OFFSET).
-     * @param [options.rowToEntity] {Function} - Function that converts a row to an entity.
      */
     constructor(options: MariadbBatchEntityReaderOptions<T,E>) {
         super(options);

@@ -6,6 +6,7 @@ import { ObjectWritable, ObjectWritableOptions, WriteCallback, BatchData } from 
  * @extends ObjectWritableOptions
  */
 export interface AbstractBatchEntityWriterStreamOptions extends ObjectWritableOptions {
+    /** The maximum number of entities to write at once. */
     batchSize: number;
 }
 
@@ -20,9 +21,8 @@ export abstract class AbstractBatchEntityWriterStream<T> extends ObjectWritable<
     private readonly batchSize: number;
 
     /**
-     * @constructor
+     
      * @param {AbstractBatchEntityWriterStreamOptions} options - The options for the AbstractBatchEntityWriterStream.
-     * @param [options.batchSize] {number} - The maximum number of elements in a batch.
      */
     constructor(options: AbstractBatchEntityWriterStreamOptions) {
         super(options);

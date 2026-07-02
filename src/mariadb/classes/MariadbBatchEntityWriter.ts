@@ -10,8 +10,11 @@ import { BatchData } from "batchjs";
  * @template E row entity
  */
 export interface MariadbBatchEntityWriterOptions<T,E> extends AbstractBatchEntityWriterStreamOptions {
+    /** The MariadbQL connection pool. */
     pool: Pool;
+    /** The prepared statement for inserting entities. */
     prepareStatement: string;
+    /** Function that converts an entity to a row. */
     entityToRow:(entity: T) => E
 }
 
@@ -28,11 +31,8 @@ export class MariadbBatchEntityWriter<T,E> extends AbstractBatchEntityWriterStre
     private readonly entityToRow:(entity: T) => E;
 
     /**
-     * @constructor
+     
      * @param {MariadbBatchEntityWriterOptions} options - The options for the MariadbBatchEntityWriter.
-     * @param [options.pool] {Pool} - The MariadbQL connection pool.
-     * @param [options.prepareStatement] {String} - Insert SQL prepared statement to be executed.
-     * @param [options.entityToRow] {Function} - Function that converts an entity to a row.
      */
     constructor(options: MariadbBatchEntityWriterOptions<T,E>) {
         super(options);

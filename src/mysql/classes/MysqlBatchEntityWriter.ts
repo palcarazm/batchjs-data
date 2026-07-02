@@ -10,8 +10,11 @@ import { AbstractBatchEntityWriterStream, AbstractBatchEntityWriterStreamOptions
  * @template E row entity
  */
 export interface MysqlBatchEntityWriterOptions<T,E extends Array<unknown>> extends AbstractBatchEntityWriterStreamOptions {
+    /** The MySQL connection pool */
     pool: Pool;
+    /** Insert SQL prepared statement to be executed */
     prepareStatement: string;
+    /** Function that converts an entity to a row */
     entityToRow:(entity: T) => E
 }
 
@@ -28,11 +31,8 @@ export class MysqlBatchEntityWriter<T,E extends Array<unknown>> extends Abstract
     private readonly entityToRow:(entity: T) => E;
 
     /**
-     * @constructor
+     
      * @param {MysqlBatchEntityWriterOptions} options - The options for the MysqlBatchEntityWriter.
-     * @param [options.pool] {Pool} - The MySQL connection pool.
-     * @param [options.prepareStatement] {String} - Insert SQL prepared statement to be executed.
-     * @param [options.entityToRow] {Function} - Function that converts an entity to a row.
      */
     constructor(options: MysqlBatchEntityWriterOptions<T,E>) {
         super(options);
