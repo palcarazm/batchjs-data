@@ -1,46 +1,59 @@
-name: Deploy Docs
+name: Deploy Documentation
 
 on:
   release:
     types: [published]
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: "Branch to deploy"
+        required: true
+        default: "version/v2"
+        type: string
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Checkout released tag
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.release.tag_name }}
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
         with:
-          node-version: 20
-          cache: npm
+          ref: ${{ github.event.inputs.branch || github.ref_name }}
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24.x
 
       - name: Install dependencies
         run: npm install
 
-      - name: Build documentation
-        run: npm run docs:build
-
-      - name: Configure GitHub Pages
-        uses: actions/configure-pages@v4
+      - name: Build API docs and docs site
+        run: npm run docs
 
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5
         with:
           path: docs/.vitepress/dist
 
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Setup Pages
+        uses: actions/configure-pages@v6
+          
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
