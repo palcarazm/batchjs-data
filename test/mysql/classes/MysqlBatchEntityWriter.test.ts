@@ -1,3 +1,6 @@
+/// <reference types="jest" />
+/// <reference types="node" />
+
 import { UserBatchWriter } from "../mocks/UserBatchWriter";
 import { UserDTO } from "../mocks/UserDTO";
 import { UserDatabase } from "../mocks/UserDatabase";

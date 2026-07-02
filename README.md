@@ -30,7 +30,7 @@ Extension of [Batch JS](https://github.com/palcarazm/batchjs) adding data storag
 [![NPM Badge](https://img.shields.io/npm/dm/batchjs-data?logo=npm)](https://www.npmjs.com/package/batchjs-data)
 
 ```sh
-npm install batchjs-data --no-optional
+npm install batchjs-data
 npm install sqlite sqlite3  #For SQLite implementation
 npm install mariadb         #For MariaDB implementation
 npm install mysql2          #For MySQL implementation

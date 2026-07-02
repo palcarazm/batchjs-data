@@ -1,4 +1,4 @@
-import { ObjectReadable, ObjectReadableOptions, BatchData } from "batchjs";
+import { ObjectReadable, ObjectReadableOptions, BatchData, ExtendableReadableEventMap } from "batchjs";
 
 /**
  * @interface
@@ -15,7 +15,9 @@ export interface AbstractBatchEntityReaderStreamOptions extends ObjectReadableOp
  * @extends ObjectReadable
  * @template T
  */
-export abstract class AbstractBatchEntityReaderStream<T> extends ObjectReadable<T> {
+export abstract class AbstractBatchEntityReaderStream<T> extends ObjectReadable<T, ExtendableReadableEventMap<T,{
+    drain: void;
+}>> {
     private reading: boolean = false;
     private finished: boolean = false;
     private awaitingDrain: boolean = false;

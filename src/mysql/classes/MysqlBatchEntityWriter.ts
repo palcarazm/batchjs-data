@@ -9,7 +9,7 @@ import { AbstractBatchEntityWriterStream, AbstractBatchEntityWriterStreamOptions
  * @template T chunk entity
  * @template E row entity
  */
-export interface MysqlBatchEntityWriterOptions<T,E> extends AbstractBatchEntityWriterStreamOptions {
+export interface MysqlBatchEntityWriterOptions<T,E extends Array<unknown>> extends AbstractBatchEntityWriterStreamOptions {
     pool: Pool;
     prepareStatement: string;
     entityToRow:(entity: T) => E
@@ -22,7 +22,7 @@ export interface MysqlBatchEntityWriterOptions<T,E> extends AbstractBatchEntityW
  * @template T chunk entity
  * @template E row entity
  */
-export class MysqlBatchEntityWriter<T,E> extends AbstractBatchEntityWriterStream<T> {
+export class MysqlBatchEntityWriter<T,E extends Array<unknown>> extends AbstractBatchEntityWriterStream<T> {
     private readonly pool: Pool;
     private readonly prepareStatement: string;
     private readonly entityToRow:(entity: T) => E;

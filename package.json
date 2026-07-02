@@ -56,6 +56,7 @@
     "@commitlint/cli": "^20.4.1",
     "@commitlint/config-conventional": "^19.1.0",
     "@types/jest": "^30.0.0",
+    "@types/pg": "^8.20.0",
     "@typescript-eslint/eslint-plugin": "^8.20.0",
     "@typescript-eslint/parser": "^8.20.0",
     "commitlint": "^20.4.1",
@@ -67,19 +68,41 @@
     "jsdoc": "^4.0.3",
     "jsdoc-babel": "^0.5.0",
     "jsdoc-to-markdown": "^9.0.5",
+    "mariadb": "^3",
+    "mysql2": "^3",
+    "pg": "^8",
+    "sqlite": "^5",
+    "sqlite3": "^5",
     "ts-jest": "^29.2.3",
     "typescript": "^5.5.4"
   },
-  "optionalDependencies": {
-    "@types/pg": "^8.11.11",
-    "mariadb": "^3.4.0",
-    "mysql2": "^3.12.0",
-    "pg": "^8.13.1",
-    "sqlite": "^5.1.1",
-    "sqlite3": "^5.1.7"
+  "peerDependencies": {
+    "batchjs": ">=2.0.0-0 & <3",
+    "mariadb": ">=3 & <4",
+    "mysql2": ">=3 & <4",
+    "pg": ">=8 & <9",
+    "sqlite": ">=5 & <6",
+    "sqlite3": ">=5 & <6"
   },
-  "dependencies": {
-    "batchjs": "^1.2.5"
+  "peerDependenciesMeta": {
+    "batchjs": {
+      "optional": false
+    },
+    "mariadb": {
+      "optional": true
+    },
+    "mysql2": {
+      "optional": true
+    },
+    "pg": {
+      "optional": true
+    },
+    "sqlite": {
+      "optional": true
+    },
+    "sqlite3": {
+      "optional": true
+    }
   },
   "commitlint": {
     "extends": "@commitlint/config-conventional"
