@@ -1,4 +1,4 @@
-import { ObjectReadable, ObjectReadableOptions, BatchData } from "batchjs";
+import { ObjectReadable, ObjectReadableOptions, BatchData, ExtendableReadableEventMap } from "batchjs";
 
 /**
  * @interface
@@ -6,6 +6,7 @@ import { ObjectReadable, ObjectReadableOptions, BatchData } from "batchjs";
  * @extends ObjectReadableOptions
  */
 export interface AbstractBatchEntityReaderStreamOptions extends ObjectReadableOptions {
+    /** The maximum number of entities to read at once. */
     batchSize: number;
 }
 
@@ -13,9 +14,11 @@ export interface AbstractBatchEntityReaderStreamOptions extends ObjectReadableOp
  * @class
  * Class that enable to implement classes to read data in batches of a specified size in different types of data storage.
  * @extends ObjectReadable
- * @template T
+ * @template T The type of the data to be read
  */
-export abstract class AbstractBatchEntityReaderStream<T> extends ObjectReadable<T> {
+export abstract class AbstractBatchEntityReaderStream<T> extends ObjectReadable<T, ExtendableReadableEventMap<T,{
+    drain: void;
+}>> {
     private reading: boolean = false;
     private finished: boolean = false;
     private awaitingDrain: boolean = false;
@@ -23,9 +26,7 @@ export abstract class AbstractBatchEntityReaderStream<T> extends ObjectReadable<
     private readonly batchSize: number;
 
     /**
-     * @constructor
      * @param {AbstractBatchEntityReaderStreamOptions} options - The options for the AbstractBatchEntityReaderStream.
-     * @param [options.batchSize] {number} - The maximum number of elements in a batch.
      */
     constructor(options: AbstractBatchEntityReaderStreamOptions) {
         super(options);

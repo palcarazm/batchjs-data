@@ -30,7 +30,7 @@ Extension of [Batch JS](https://github.com/palcarazm/batchjs) adding data storag
 [![NPM Badge](https://img.shields.io/npm/dm/batchjs-data?logo=npm)](https://www.npmjs.com/package/batchjs-data)
 
 ```sh
-npm install batchjs-data --no-optional
+npm install batchjs-data
 npm install sqlite sqlite3  #For SQLite implementation
 npm install mariadb         #For MariaDB implementation
 npm install mysql2          #For MySQL implementation
@@ -152,11 +152,18 @@ yarn add sqlite sqlite3  #For SQLite implementation
 
 # Documentation
 
-- [Core API](./docs/common-api.md)
-- [MariaDB API](./docs/mariadb-api.md)
-- [MySQL API](./docs/mysql-api.md)
-- [PostgreSQL API](./docs/postgresql-api.md)
-- [SQLite API](./docs/sqlite-api.md)
+- [Documentation site](https://palcarazm.github.io/batchjs-data/)
+- [Core API](https://palcarazm.github.io/batchjs-data/api/common)
+- [MariaDB API](https://palcarazm.github.io/batchjs-data/api/mariadb)
+- [MySQL API](https://palcarazm.github.io/batchjs-data/api/mysql)
+- [PostgreSQL API](https://palcarazm.github.io/batchjs-data/api/postgresql)
+- [SQLite API](https://palcarazm.github.io/batchjs-data/api/sqlite)
+
+To preview the documentation locally, run:
+
+```sh
+npm run docs
+```
 
 # Collaborators welcome!
 

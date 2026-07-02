@@ -1,0 +1,63 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "tsconfig": "tsconfig.json",
+  "entryPoints": [
+    "src/common/index.ts",
+    "src/mariadb/index.ts",
+    "src/mysql/index.ts",
+    "src/postgresql/index.ts",
+    "src/sqlite/index.ts"
+  ],
+  "name": "API Reference",
+  "entryPointStrategy": "expand",
+  "entryFileName": "index",
+  "out": "docs/api",
+  "plugin": ["typedoc-plugin-markdown"],
+  "cleanOutputDir": true,
+  "excludePrivate": true,
+  "excludeProtected": false,
+  "excludeInternal": true,
+  "excludeExternals": true,
+  "excludeNotDocumented": true,
+  "disableSources": true,
+  "categorizeByGroup": true,
+  "readme": "none",
+  "useCodeBlocks": true,
+  "parametersFormat": "table",
+  "interfacePropertiesFormat": "table",
+  "classPropertiesFormat": "table",
+  "typeAliasPropertiesFormat": "table",
+  "enumMembersFormat": "table",
+  "propertyMembersFormat": "table",
+  "typeDeclarationFormat": "table",
+  "markdownItOptions": {
+    "html": false
+  },
+  "externalSymbolLinkMappings": {
+    "batchjs":{
+        "ObjectReadable": "https://palcarazm.github.io/batchjs/api/streams/classes/ObjectReadable.html",
+        "ObjectReadableOptions": "https://palcarazm.github.io/batchjs/api/streams/interfaces/ObjectReadableOptions.html",
+        "ExtendableReadableEventMap": "https://palcarazm.github.io/batchjs/api/streams/type-aliases/ExtendableReadableEventMap.html",
+        "ObjectWritable": "https://palcarazm.github.io/batchjs/api/streams/classes/ObjectWritable.html",
+        "ObjectWritableOptions": "https://palcarazm.github.io/batchjs/api/streams/interfaces/ObjectWritableOptions.html",
+        "ExtendableWritableEventMap": "https://palcarazm.github.io/batchjs/api/streams/type-aliases/ExtendableWritableEventMap.html",
+    },
+    "@types/node": {
+      "Stream.Readable.push": "https://nodejs.org/api/stream.html#readablepushchunk-encoding",
+      "Stream.Writable.write": "https://nodejs.org/api/stream.html#writablewritechunk-encoding-callback",
+      "Stream.Writable.end": "https://nodejs.org/api/stream.html#writableendchunk-encoding-callback",
+    },
+    "@types/pg":{
+        "Pool": "https://node-postgres.com/api/pool",
+    },
+    "mariadb":{
+        "Pool": "https://mariadb.com/docs/connectors/mariadb-connector-nodejs/connector-nodejs-promise-api#pool-api",
+    },
+    "mysql2":{
+        "Pool": "https://www.npmjs.com/package/mysql#pooling-connections",
+    },
+    "sqlite":{
+        "Database": "https://github.com/kriasoft/node-sqlite/blob/master/docs/classes/_src_database_.database.md",
+    }
+  }
+}
