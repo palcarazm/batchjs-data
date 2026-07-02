@@ -14,7 +14,7 @@ export interface AbstractBatchEntityReaderStreamOptions extends ObjectReadableOp
  * @class
  * Class that enable to implement classes to read data in batches of a specified size in different types of data storage.
  * @extends ObjectReadable
- * @template T
+ * @template T The type of the data to be read
  */
 export abstract class AbstractBatchEntityReaderStream<T> extends ObjectReadable<T, ExtendableReadableEventMap<T,{
     drain: void;
@@ -26,7 +26,6 @@ export abstract class AbstractBatchEntityReaderStream<T> extends ObjectReadable<
     private readonly batchSize: number;
 
     /**
-     
      * @param {AbstractBatchEntityReaderStreamOptions} options - The options for the AbstractBatchEntityReaderStream.
      */
     constructor(options: AbstractBatchEntityReaderStreamOptions) {

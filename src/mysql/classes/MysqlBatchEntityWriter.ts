@@ -6,8 +6,8 @@ import { AbstractBatchEntityWriterStream, AbstractBatchEntityWriterStreamOptions
  * @interface
  * Options for the MysqlBatchEntityWriter.
  * @extends AbstractBatchEntityWriterStreamOptions
- * @template T chunk entity
- * @template E row entity
+ * @template T The type of the data to be written
+ * @template E The type of the row data from the database
  */
 export interface MysqlBatchEntityWriterOptions<T,E extends Array<unknown>> extends AbstractBatchEntityWriterStreamOptions {
     /** The MySQL connection pool */
@@ -22,8 +22,8 @@ export interface MysqlBatchEntityWriterOptions<T,E extends Array<unknown>> exten
  * @class
  * Class that writes data in batches of a specified size into a MySQL database.
  * @extends AbstractBatchEntityWriterStream
- * @template T chunk entity
- * @template E row entity
+ * @template T The type of the data to be written
+ * @template E The type of the row data from the database
  */
 export class MysqlBatchEntityWriter<T,E extends Array<unknown>> extends AbstractBatchEntityWriterStream<T> {
     private readonly pool: Pool;

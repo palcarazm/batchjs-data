@@ -6,7 +6,7 @@ import { BatchData, WriteCallback } from "batchjs";
  * @interface
  * Options for the SqliteBatchEntityWriter.
  * @extends AbstractBatchEntityWriterStreamOptions
- * @template T chunk entity
+ * @template T The type of the data to be written
  */
 export interface SqliteBatchEntityWriterOptions<T> extends AbstractBatchEntityWriterStreamOptions {
     /** The function that creates a database connection */
@@ -21,7 +21,7 @@ export interface SqliteBatchEntityWriterOptions<T> extends AbstractBatchEntityWr
  * @class
  * Class that write data in batches of a specified size in SQLite databases.
  * @extends AbstractBatchEntityWriterStream
- * @template T chunk entity
+ * @template T The type of the data to be written
  */
 export class SqliteBatchEntityWriter<T> extends AbstractBatchEntityWriterStream<T> {
     private readonly dbConnectionFactory: ()=>Promise<sqlite.Database>;

@@ -6,8 +6,8 @@ import { BatchData, ReadCallback } from "batchjs";
  * @interface
  * Options for the SqliteBatchEntityReader.
  * @extends AbstractBatchEntityReaderStreamOptions
- * @template T chunk entity
- * @template E row entity
+ * @template T The type of the data to be read
+ * @template E The type of the row data from the database
  */
 export interface SqliteBatchEntityReaderOptions<T,E> extends AbstractBatchEntityReaderStreamOptions {
     /** The function that creates a database connection */
@@ -22,8 +22,8 @@ export interface SqliteBatchEntityReaderOptions<T,E> extends AbstractBatchEntity
  * @class
  * Class that read data in batches of a specified size in SQLite databases.
  * @extends AbstractBatchEntityReaderStream
- * @template T chunk entity
- * @template E row entity
+ * @template T The type of the data to be read
+ * @template E The type of the row data from the database
  */
 export class SqliteBatchEntityReader<T,E> extends AbstractBatchEntityReaderStream<T> {
     private readonly dbConnectionFactory: ()=>Promise<sqlite.Database>;

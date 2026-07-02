@@ -6,8 +6,8 @@ import { BatchData } from "batchjs";
  * @interface
  * Options for the MariadbBatchEntityWriter.
  * @extends AbstractBatchEntityWriterStreamOptions
- * @template T chunk entity
- * @template E row entity
+ * @template T The type of the data to be written
+ * @template E The type of the row data from the database
  */
 export interface MariadbBatchEntityWriterOptions<T,E> extends AbstractBatchEntityWriterStreamOptions {
     /** The MariadbQL connection pool. */
@@ -22,8 +22,8 @@ export interface MariadbBatchEntityWriterOptions<T,E> extends AbstractBatchEntit
  * @class
  * Class that writes data in batches of a specified size in MariadbQL databases.
  * @extends AbstractBatchEntityWriterStream
- * @template T chunk entity
- * @template E row entity
+ * @template T The type of the data to be written
+ * @template E The type of the row data from the database
  */
 export class MariadbBatchEntityWriter<T,E> extends AbstractBatchEntityWriterStream<T> {
     private readonly pool: Pool;

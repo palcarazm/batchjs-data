@@ -6,8 +6,8 @@ import { BatchData } from "batchjs";
  * @interface
  * Options for the PostgresBatchEntityReader.
  * @extends AbstractBatchEntityReaderStreamOptions
- * @template T chunk entity
- * @template E row entity
+ * @template T The type of the data to be read
+ * @template E The type of the row data from the database
  */
 export interface PostgresBatchEntityReaderOptions<T,E> extends AbstractBatchEntityReaderStreamOptions {
     /** The PostgreSQL connection pool */
@@ -22,8 +22,8 @@ export interface PostgresBatchEntityReaderOptions<T,E> extends AbstractBatchEnti
  * @class
  * Class that reads data in batches of a specified size using PostgreSQL cursors.
  * @extends AbstractBatchEntityReaderStream
- * @template T chunk entity
- * @template E row entity
+ * @template T The type of the data to be read
+ * @template E The type of the row data from the database
  */
 export class PostgresBatchEntityReader<T,E> extends AbstractBatchEntityReaderStream<T> {
     private readonly pool: Pool;

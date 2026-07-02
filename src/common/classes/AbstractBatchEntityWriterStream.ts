@@ -14,7 +14,7 @@ export interface AbstractBatchEntityWriterStreamOptions extends ObjectWritableOp
  * @class
  * Class that enable to implement classes to write data in batches of a specified size in different types of data storage.
  * @extends ObjectWritable
- * @template T
+ * @template T The type of the data to be written
  */
 export abstract class AbstractBatchEntityWriterStream<T> extends ObjectWritable<T> {
     protected buffer: BatchData<T> = [];
