@@ -93,6 +93,9 @@ export class PostgresBatchEntityReader<T,E> extends AbstractBatchEntityReaderStr
             try {
                 await this.client.query(`CLOSE ${this.cursorName};`);
                 await this.client.query("COMMIT;");
+            } catch (error) {
+                await this.client.query("ROLLBACK;");
+                throw error;
             } finally {
                 this.client.release();
                 this.client = null;

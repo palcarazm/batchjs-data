@@ -16,6 +16,10 @@ jobs:
   build-and-test:
     name: Run build with unit test
     runs-on: ubuntu-latest
+    env:
+      MARIADB_IMAGE: mariadb:latest
+      MYSQL_IMAGE: mysql:latest
+      POSTGRESQL_IMAGE: postgres:latest
     strategy:
       matrix:
         node-version: [22.x, 24.x, 26.x]

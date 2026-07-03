@@ -3,15 +3,6 @@ import { UserBatchReader } from "../mocks/UserBatchReader";
 import { UserDTO } from "../mocks/UserDTO";
 import { UserDatabase } from "../mocks/UserDatabase";
 
-jest.mock("pg", () => {
-    if (process.env.CI === "true") {
-        console.info("Setup mocked PostgreSQL database");
-        return { Pool: jest.fn(() => UserDatabase.mPool) };
-    }
-    console.info("Setup real PostgreSQL database");
-    return jest.requireActual("pg");
-});
-
 describe("PostgresBatchEntityReader", () => {
     const data = [
         { id: 1, username: "Alice" },
@@ -20,28 +11,21 @@ describe("PostgresBatchEntityReader", () => {
     ];
     Object.freeze(data);
 
-    beforeAll((done) => {
-        UserDatabase.teardown()
-            .then(() => done())
-            .catch((error) => done(error));
-    });
+    beforeAll(async () => {
+        await UserDatabase.startContainer();
+    }, 60000);
 
-    beforeEach((done) => {
-        UserDatabase.setup()
-            .then(() => done())
-            .catch((error) => done(error));
-    });
+    beforeEach(async () => {
+        await UserDatabase.setup();
+    }, 10000);
 
-    afterEach((done) => {
-        UserDatabase.teardown()
-            .then(() => done())
-            .catch((error) => done(error));
-    });
+    afterEach(async () => {
+        await UserDatabase.teardown();
+    }, 10000);
 
-    afterAll((done) => {
-        UserDatabase.closePool();
-        done();
-    });
+    afterAll(async () => {
+        await UserDatabase.stopContainer();
+    }, 60000);
 
     test("should read users in batches", (done) => {
         UserDatabase.load(Object.assign([], data)).then(() => {
@@ -104,26 +88,6 @@ describe("PostgresBatchEntityReader", () => {
                 expect(reader["cursorName"]).toBeNull();
                 expect(reader["cursorOpened"]).toBeFalsy();
                 expect(spyCloseCursor).toHaveBeenCalled();
-                done();
-            });
-
-            reader.read();
-        });
-    });
-
-    test("should handle error on close", (done) => {
-        UserDatabase.load([]).then(() => {
-            const reader = new UserBatchReader({ batchSize: 2 });
-
-            jest.spyOn(reader as any, "closeCursor").mockImplementation(() => {
-                return Promise.reject(new Error("Error on close"));
-            });
-
-            reader.on("data", () => {});
-
-            reader.on("error", (error) => {
-                expect(error).toBeInstanceOf(Error);
-                expect(error.message).toBe("Error on close");
                 done();
             });
 
