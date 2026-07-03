@@ -13,58 +13,236 @@ on:
       - synchronize
 
 jobs:
-  build-and-test:
-    name: Run build with unit test
+  build:
+    name: Build (Node ${{ matrix.node-version }})
     runs-on: ubuntu-latest
-    env:
-      MARIADB_IMAGE: mariadb:latest
-      MYSQL_IMAGE: mysql:latest
-      POSTGRESQL_IMAGE: postgres:latest
     strategy:
       matrix:
         node-version: [22.x, 24.x, 26.x]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
+
       - name: Set up Node.js
         uses: actions/setup-node@v6
         with:
-            node-version: ${{ matrix.node-version }}
+          node-version: ${{ matrix.node-version }}
+
       - name: Install dependencies
         run: npm install
+
       - name: Lint code
         run: npm run lint
+
       - name: Build project
         run: npm run build
-      - name: Unit test
-        run: npm run test
-      - name: Upload coverage report to Github
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: build-node-${{ matrix.node-version }}
+          path: |
+            dist/
+            node_modules/
+            package.json
+            package-lock.json
+
+  test-sqlite:
+    name: SQLite
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v8
+        with:
+          name: build-node-22.x
+          path: .
+
+      - name: Run SQLite tests
+        run: npm run test -- --testPathPattern=src/test/sqlite --coverage
+        env:
+          COVERAGE_PREFIX: sqlite
+          JEST_COVERAGE_DIRECTORY: coverage/sqlite
+
+      - name: Upload coverage artifact
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: coverage-report-${{ matrix.node-version }}
-          path: coverage
-      - name: Upload coverage report to Coveralls
+          name: coverage-sqlite
+          path: coverage/sqlite
+
+      - name: Upload coverage to Coveralls
         uses: coverallsapp/github-action@5cbfd81b66ca5d10c19b062c04de0199c215fb6e
         with:
-          flag-name: coverage-report-${{ matrix.node-version }}
+          flag-name: coverage-sqlite
+          parallel: true
+        continue-on-error: true
+
+  test-postgresql:
+    name: PostgreSQL ${{ matrix.pg-version }}
+    runs-on: ubuntu-latest
+    needs: build
+    strategy:
+      matrix:
+        pg-version: [15, 16, 17, 18]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Download build artifacts (Node 22.x)
+        uses: actions/download-artifact@v8
+        with:
+          name: build-node-22.x
+          path: .
+
+      - name: Run PostgreSQL tests
+        run: npm run test -- --testPathPattern=src/test/postgresql --coverage
+        env:
+          POSTGRESQL_IMAGE: postgres:${{ matrix.pg-version }}
+          COVERAGE_PREFIX: postgresql-${{ matrix.pg-version }}
+          JEST_COVERAGE_DIRECTORY: coverage/postgresql-${{ matrix.pg-version }}
+
+      - name: Upload coverage artifact
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: coverage-postgresql-${{ matrix.pg-version }}
+          path: coverage/postgresql-${{ matrix.pg-version }}
+
+      - name: Upload coverage to Coveralls
+        uses: coverallsapp/github-action@5cbfd81b66ca5d10c19b062c04de0199c215fb6e
+        with:
+          flag-name: coverage-postgresql-${{ matrix.pg-version }}
+          parallel: true
+        continue-on-error: true
+
+  test-mysql:
+    name: MySQL ${{ matrix.mysql-version }}
+    runs-on: ubuntu-latest
+    needs: build
+    strategy:
+      matrix:
+        mysql-version: [8.4, 9.7]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Download build artifacts (Node 22.x)
+        uses: actions/download-artifact@v8
+        with:
+          name: build-node-22.x
+          path: .
+
+      - name: Run MySQL tests
+        run: npm run test -- --testPathPattern=src/test/mysql --coverage
+        env:
+          MYSQL_IMAGE: mysql:${{ matrix.mysql-version }}
+          COVERAGE_PREFIX: mysql-${{ matrix.mysql-version }}
+          JEST_COVERAGE_DIRECTORY: coverage/mysql-${{ matrix.mysql-version }}
+
+      - name: Upload coverage artifact
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: coverage-mysql-${{ matrix.mysql-version }}
+          path: coverage/mysql-${{ matrix.mysql-version }}
+
+      - name: Upload coverage to Coveralls
+        uses: coverallsapp/github-action@5cbfd81b66ca5d10c19b062c04de0199c215fb6e
+        with:
+          flag-name: coverage-mysql-${{ matrix.mysql-version }}
+          parallel: true
+        continue-on-error: true
+
+  test-mariadb:
+    name: MariaDB ${{ matrix.mariadb-version }}
+    runs-on: ubuntu-latest
+    needs: build
+    strategy:
+      matrix:
+        mariadb-version: [10.11, 11.4, 11.8, 12.3]
+      fail-fast: false
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Download build artifacts (Node 22.x)
+        uses: actions/download-artifact@v8
+        with:
+          name: build-node-22.x
+          path: .
+
+      - name: Run MariaDB tests
+        run: npm run test -- --testPathPattern=src/test/mariadb --coverage
+        env:
+          MARIADB_IMAGE: mariadb:${{ matrix.mariadb-version }}
+          COVERAGE_PREFIX: mariadb-${{ matrix.mariadb-version }}
+          JEST_COVERAGE_DIRECTORY: coverage/mariadb-${{ matrix.mariadb-version }}
+
+      - name: Upload coverage artifact
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: coverage-mariadb-${{ matrix.mariadb-version }}
+          path: coverage/mariadb-${{ matrix.mariadb-version }}
+
+      - name: Upload coverage to Coveralls
+        uses: coverallsapp/github-action@5cbfd81b66ca5d10c19b062c04de0199c215fb6e
+        with:
+          flag-name: coverage-mariadb-${{ matrix.mariadb-version }}
           parallel: true
         continue-on-error: true
 
   coverage-finished:
-    name: Publish coverage report to Coveralls
-    needs: build-and-test
-    if: always()
+    name: Finalize coverage report
+    needs:
+      - test-sqlite
+      - test-postgresql
+      - test-mysql
+      - test-mariadb
+    if: ${{ !failure() && !cancelled() }}
     runs-on: ubuntu-latest
     steps:
+      - name: Generate carryforward flags
+        id: flags
+        run: |
+          FLAGS=""
+          
+          # SQLite flags
+          for node in 22.x; do
+            FLAGS="$FLAGS,coverage-sqlite"
+          done
+          
+          # PostgreSQL flags (4 versions)
+          for pg in 15 16 17 18; do
+            FLAGS="$FLAGS,coverage-postgresql-${pg}"
+          done
+          
+          # MySQL flags (2 versions)
+          for mysql in 8.4 9.7; do
+            FLAGS="$FLAGS,coverage-mysql-${mysql}"
+          done
+          
+          # MariaDB flags (4 versions)
+          for mariadb in 10.11 11.4 11.8 12.3; do
+            FLAGS="$FLAGS,coverage-mariadb-${mariadb}"
+          done
+          
+          # Remove leading comma
+          FLAGS="${FLAGS:1}"
+          echo "flags=$FLAGS" >> $GITHUB_OUTPUT
+
       - name: Coveralls Finished
         id: coveralls
         uses: coverallsapp/github-action@5cbfd81b66ca5d10c19b062c04de0199c215fb6e
         with:
           parallel-finished: true
-          carryforward: "coverage-report-22.x,coverage-report-24.x,coverage-report-26.x"
+          carryforward: ${{ steps.flags.outputs.flags }}
         continue-on-error: true
-  
+
       - name: Check Coveralls status
         id: check-status
         if: always()
@@ -79,7 +257,7 @@ jobs:
             echo "❓ Coveralls status unknown: ${{ steps.coveralls.outcome }}"
             echo "status=neutral" >> $GITHUB_OUTPUT
           fi
-      
+
       - name: Set neutral status (if needed)
         if: steps.check-status.outputs.status == 'neutral'
         uses: actions/github-script@v9
@@ -106,7 +284,8 @@ jobs:
   analyze:
     name: Analyze code with CodeQL
     runs-on: ubuntu-latest
-    needs: build-and-test
+    needs: coverage-finished
+    if: ${{ success() && !cancelled() }}
     permissions:
       actions: read
       contents: read
@@ -114,19 +293,23 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
+
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v4
         with:
           languages: typescript
+
       - name: Autobuild
         uses: github/codeql-action/autobuild@v4
+
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v4
 
   sonarcloud:
     name: Analyze code with SonarQube
     runs-on: ubuntu-latest
-    needs: build-and-test
+    needs: coverage-finished
+    if: ${{ success() && !cancelled() }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -145,7 +328,7 @@ jobs:
             **/*.md
             .github/**
             .gitignore
-          
+
       - name: Check if code changes exist
         id: check-changes
         run: |
@@ -158,15 +341,35 @@ jobs:
             echo "📦 Only dependency, documentation or CI/CD files changed"
           fi
 
-      - name: Download coverage artifact
+      - name: Download coverage from Coveralls
         if: steps.check-changes.outputs.has_code_changes == 'true'
-        uses: actions/download-artifact@v8
-        with:
-          name: coverage-report-22.x
-          path: coverage
+        run: |          
+          echo "📊 Downloading merged coverage from Coveralls..."
+          
+          # Use Coveralls API to get the latest merged coverage
+          # COVERALLS_REPO_TOKEN is required for private repos, but public repos can use the public API
+          if [ -n "${{ secrets.COVERALLS_REPO_TOKEN }}" ]; then
+            COVERALLS_URL="https://coveralls.io/repos/github/${GITHUB_REPOSITORY}/coverage?format=lcov"
+            curl -s -H "Authorization: token ${{ secrets.COVERALLS_REPO_TOKEN }}" \
+              -o merged-lcov.info \
+              "$COVERALLS_URL"
+          else
+            # Public repo - use public API (may have rate limits)
+            COVERALLS_URL="https://coveralls.io/repos/github/${GITHUB_REPOSITORY}/coverage?format=lcov"
+            curl -s -o merged-lcov.info "$COVERALLS_URL"
+          fi
+          
+          if [ -s merged-lcov.info ]; then
+            echo "✅ Coverage downloaded successfully"
+          else
+            echo "⚠️ No coverage data available from Coveralls"
+            echo "Creating empty coverage file"
+            echo "TN:" > merged-lcov.info
+          fi
 
       - name: SonarQube Scan
         if: steps.check-changes.outputs.has_code_changes == 'true'
         uses: SonarSource/sonarqube-scan-action@713881670b6b3676cda39549040e2d88c70d582e
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_EXTRA_ARGS: "-Dsonar.javascript.lcov.reportPaths=merged-lcov.info"

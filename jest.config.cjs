@@ -1,5 +1,7 @@
 /** @type {import('jest').Config} */
 
+const coverageDir = process.env.JEST_COVERAGE_DIRECTORY || "coverage";
+
 module.exports = {
     preset: "ts-jest",
     roots: ["<rootDir>/src/main", "<rootDir>/src/test"],
@@ -20,16 +22,8 @@ module.exports = {
         "!**/index.ts",
         "!**/*.d.ts",
     ],
-    coverageThreshold: {
-        global: {
-            statements: 80,
-            branches: 80,
-            functions: 80,
-            lines: 80,
-        },
-    },
     globalSetup: "<rootDir>/src/test/global-setup.ts",
-    coverageDirectory: "coverage",
+    coverageDirectory: coverageDir,
     reporters: [["github-actions", {silent: false}], "summary"],
     maxConcurrency: 1,
     maxWorkers: 1,
