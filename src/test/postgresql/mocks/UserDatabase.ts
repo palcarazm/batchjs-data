@@ -1,189 +1,120 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { ClientConfig, Pool } from "pg";
+ 
+import { Pool } from "pg";
+import { PostgreSqlContainer, StartedPostgreSqlContainer } from "@testcontainers/postgresql";
 import { UserDTO } from "./UserDTO";
 
 export class UserDatabase {
-    private static data: UserDTO[] = [];
+    private static container: StartedPostgreSqlContainer | null = null;
     private static pool: Pool | null = null;
 
-    static readonly mPoolClient = {
-        query: jest.fn(),
-        release: jest.fn(),
-    };
+    static async startContainer(): Promise<void> {
+        if (UserDatabase.container) return;
 
-    static readonly mPool = {
-        query: jest.fn(),
-        connect: jest.fn(() => Promise.resolve(UserDatabase.mPoolClient)),
-        end: jest.fn(),
-    };
+        const image = process.env.POSTGRESQL_IMAGE || "postgres:latest";
+        UserDatabase.container = await new PostgreSqlContainer(image)
+            .withDatabase("testdb")
+            .withUsername("postgres")
+            .withPassword("password")
+            .start();
 
-    private static getConnectionOptions(): ClientConfig {
-        if (process.env.CI !== "true") {
-            return {
-                user: process.env.POSTGRESQL_USER,
-                password: process.env.POSTGRESQL_PASSWORD,
-                host: process.env.POSTGRESQL_HOST,
-                port: parseInt(process.env.POSTGRESQL_PORT as string),
-                database: process.env.POSTGRESQL_DATABASE,
-            };
+        UserDatabase.pool = new Pool({
+            host: UserDatabase.container.getHost(),
+            port: UserDatabase.container.getPort(),
+            user: "postgres",
+            password: "password",
+            database: "testdb",
+        });
+    }
+
+    static async stopContainer(): Promise<void> {
+        if (UserDatabase.pool) {
+            await UserDatabase.pool.end();
+            UserDatabase.pool = null;
         }
-        return {};
+
+        if (UserDatabase.container) {
+            await UserDatabase.container.stop();
+            UserDatabase.container = null;
+        }
     }
 
     static getPool(): Pool {
         if (!UserDatabase.pool) {
-            UserDatabase.pool = new Pool(UserDatabase.getConnectionOptions());
+            throw new Error("Container not started. Call startContainer() first.");
         }
         return UserDatabase.pool;
     }
 
-    static closePool(): void {
-        if (UserDatabase.pool) {
-            UserDatabase.pool.end();
-            UserDatabase.pool = null;
-        }
-    }
-
-    static mockWriter() {
-        const idSet: Set<number> = new Set();
-
-        UserDatabase.mPoolClient.query.mockImplementation(
-            (query: { text: string; values: any[] } | string) => {
-                if (typeof query === "string") {
-                    return Promise.resolve({});
-                }
-
-                if (query.text === "INSERT INTO users (id, username) VALUES ($1, $2)") {
-                    const id = query.values[0] as number;
-                    const username = query.values[1] as string;
-
-                    if (idSet.has(id)) {
-                        return Promise.reject(new Error("Duplicated ID"));
-                    }
-                    idSet.add(id);
-
-                    UserDatabase.data.push(new UserDTO(id, username));
-                    return Promise.resolve({});
-                }
-
-                return Promise.resolve({});
-            }
-        );
-    }
-
-    static load(data: UserDTO[]): Promise<void> {
-        if (process.env.CI !== "true") {
-            return UserDatabase.getPool()
-                .connect()
-                .then((client) => {
-                    return client
-                        .query("BEGIN")
-                        .then(() =>
-                            Promise.all(
-                                data
-                                    .map((user) => [user.id, user.username])
-                                    .map((row) =>
-                                        client.query(
-                                            "INSERT INTO users (id, username) VALUES ($1, $2)",
-                                            row
-                                        )
-                                    )
-                            )
-                        )
-                        .then(() => {client.query("COMMIT");})
-                        .finally(() => client.release());
-                });
-        }
-
-        UserDatabase.mPoolClient.query.mockImplementation((query: any) => {
-            if (typeof query === "string") {
-                return Promise.resolve({ rows: [] });
-            }
-
-            const fetchMatch = query.text.match(/FETCH (\d+) FROM/);
-            if (fetchMatch) {
-                const fetchSize = parseInt(fetchMatch[1], 10);
-                return Promise.resolve({ rows: data.splice(0, fetchSize) });
-            }
-
-            return Promise.resolve({ rows: [] });
-        });
-        return Promise.resolve();
-    }
-
-    static async fetch(): Promise<UserDTO[]> {
-        if (process.env.CI !== "true") {
-            return UserDatabase.getPool()
-                .connect()
-                .then((connection) => {
-                    return connection
-                        .query("SELECT * FROM users")
-                        .finally(() => connection.release());
-                })
-                .then(({ rows }) => {
-                    return rows.map((row: unknown) => {
-                        return row as UserDTO;
-                    });
-                });
-        }
-        return Promise.resolve(UserDatabase.data);
-    }
-
     static async setup(): Promise<void> {
-        if (process.env.CI === "true") {
-            UserDatabase.data = [];
-            UserDatabase.mockWriter();
-            return Promise.resolve();
-        }
+        const pool = UserDatabase.getPool();
+        const client = await pool.connect();
 
-        return UserDatabase.getPool()
-            .connect()
-            .then((connection) => {
-                return connection
-                    .query("BEGIN")
-                    .then(() =>
-                        connection.query(
-                            `CREATE TABLE IF NOT EXISTS users (
-          id INTEGER PRIMARY KEY,
-          username TEXT NOT NULL
-          )`
-                        )
-                    )
-                    .then(() => {
-                        connection.query("DELETE FROM users");
-                    })
-                    .then(() => {
-                        connection.query("COMMIT");
-                    })
-                    .catch(() => {
-                        connection.query("ROLLBACK");
-                    })
-                    .finally(() => connection.release());
-            });
+        try {
+            await client.query("BEGIN");
+            await client.query(`
+                CREATE TABLE IF NOT EXISTS users (
+                    id INTEGER PRIMARY KEY,
+                    username TEXT NOT NULL
+                )
+            `);
+            await client.query("DELETE FROM users");
+            await client.query("COMMIT");
+        } catch (error) {
+            await client.query("ROLLBACK");
+            throw error;
+        } finally {
+            client.release();
+        }
     }
 
     static async teardown(): Promise<void> {
-        if (process.env.CI === "true") {
-            UserDatabase.data = [];
-            UserDatabase.pool = null;
-            return Promise.resolve();
-        }
+        const pool = UserDatabase.getPool();
+        const client = await pool.connect();
 
-        return UserDatabase.getPool()
-            .connect()
-            .then((connection) => {
-                return connection
-                    .query("BEGIN")
-                    .then(() => connection.query("DROP TABLE IF EXISTS users"))
-                    .then(() => {
-                        connection.query("COMMIT");
-                    })
-                    .catch(() => {
-                        connection.query("ROLLBACK");
-                    })
-                    .finally(() => {
-                        connection.release();
-                    });
-            });
+        try {
+            await client.query("BEGIN");
+            await client.query("DROP TABLE IF EXISTS users");
+            await client.query("COMMIT");
+        } catch (error) {
+            await client.query("ROLLBACK");
+            throw error;
+        } finally {
+            client.release();
+        }
+    }
+
+    static async load(data: UserDTO[]): Promise<void> {
+        if (data.length === 0) return;
+
+        const pool = UserDatabase.getPool();
+        const client = await pool.connect();
+
+        try {
+            await client.query("BEGIN");
+            for (const user of data) {
+                await client.query(
+                    "INSERT INTO users (id, username) VALUES ($1, $2)",
+                    [user.id, user.username]
+                );
+            }
+            await client.query("COMMIT");
+        } catch (error) {
+            await client.query("ROLLBACK");
+            throw error;
+        } finally {
+            client.release();
+        }
+    }
+
+    static async fetch(): Promise<UserDTO[]> {
+        const pool = UserDatabase.getPool();
+        const client = await pool.connect();
+
+        try {
+            const result = await client.query("SELECT id, username FROM users");
+            return result.rows.map((row) => new UserDTO(row.id, row.username));
+        } finally {
+            client.release();
+        }
     }
 }

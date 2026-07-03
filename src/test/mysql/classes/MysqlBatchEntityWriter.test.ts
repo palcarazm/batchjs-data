@@ -5,15 +5,6 @@ import { UserBatchWriter } from "../mocks/UserBatchWriter";
 import { UserDTO } from "../mocks/UserDTO";
 import { UserDatabase } from "../mocks/UserDatabase";
 
-jest.mock("mysql2/promise", () => {
-    if (process.env.CI === "true") {
-        console.info("Setup mocked MySQL database");
-        return { createPool: jest.fn(() => UserDatabase.mPool) };
-    }
-    console.info("Setup real MySQL database");
-    return jest.requireActual("mysql2/promise");
-});
-
 describe("MysqlBatchEntityWriter", () => {
     const data = [
         { id: 1, username: "Alice" },
@@ -22,17 +13,21 @@ describe("MysqlBatchEntityWriter", () => {
     ];
     Object.freeze(data);
 
-    beforeAll((done) => {
-        UserDatabase.teardown().then(() => done()).catch(done);
-    });
+    beforeAll(async () => {
+        await UserDatabase.startContainer();
+    }, 60000);
 
-    beforeEach((done) => {
-        UserDatabase.setup().then(() => done()).catch(done);
-    });
+    beforeEach(async () => {
+        await UserDatabase.setup();
+    }, 10000);
 
-    afterEach((done) => {
-        UserDatabase.teardown().then(() => done()).catch(done);
-    });
+    afterEach(async () => {
+        await UserDatabase.teardown();
+    }, 10000);
+
+    afterAll(async () => {
+        await UserDatabase.stopContainer();
+    }, 60000);
 
     test("should save entities in database", (done) => {
         const writer = new UserBatchWriter({ batchSize: data.length });
