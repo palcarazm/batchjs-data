@@ -49,7 +49,7 @@ jobs:
         run: npm install
 
       - name: Run SQLite tests
-        run: npm run test -- --testPathPattern=src/test/sqlite --coverage
+        run: npm run test -- --testPathPatterns=src/test/sqlite --coverage
         env:
           COVERAGE_PREFIX: sqlite
           JEST_COVERAGE_DIRECTORY: coverage/sqlite
@@ -83,7 +83,7 @@ jobs:
         run: npm install
 
       - name: Run PostgreSQL tests
-        run: npm run test -- --testPathPattern=src/test/postgresql --coverage
+        run: npm run test -- --testPathPatterns=src/test/postgresql --coverage
         env:
           POSTGRESQL_IMAGE: postgres:${{ matrix.pg-version }}
           COVERAGE_PREFIX: postgresql-${{ matrix.pg-version }}
@@ -118,7 +118,7 @@ jobs:
         run: npm install
 
       - name: Run MySQL tests
-        run: npm run test -- --testPathPattern=src/test/mysql --coverage
+        run: npm run test -- --testPathPatterns=src/test/mysql --coverage
         env:
           MYSQL_IMAGE: mysql:${{ matrix.mysql-version }}
           COVERAGE_PREFIX: mysql-${{ matrix.mysql-version }}
@@ -154,7 +154,7 @@ jobs:
         run: npm install
 
       - name: Run MariaDB tests
-        run: npm run test -- --testPathPattern=src/test/mariadb --coverage
+        run: npm run test -- --testPathPatterns=src/test/mariadb --coverage
         env:
           MARIADB_IMAGE: mariadb:${{ matrix.mariadb-version }}
           COVERAGE_PREFIX: mariadb-${{ matrix.mariadb-version }}
