@@ -37,6 +37,37 @@ jobs:
       - name: Build project
         run: npm run build
 
+  test-common:
+    name: Common
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run Common tests
+        run: npm run test -- --testPathPatterns=src/test/common --coverage
+        env:
+          COVERAGE_PREFIX: common
+          JEST_COVERAGE_DIRECTORY: coverage/common
+
+      - name: Upload coverage artifact
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: coverage-common
+          path: coverage/common
+
+      - name: Upload coverage to Coveralls
+        uses: coverallsapp/github-action@5cbfd81b66ca5d10c19b062c04de0199c215fb6e
+        with:
+          flag-name: coverage-common
+          parallel: true
+        continue-on-error: true
+
   test-sqlite:
     name: SQLite
     runs-on: ubuntu-latest
@@ -177,6 +208,7 @@ jobs:
   coverage-finished:
     name: Finalize coverage report
     needs:
+      - test-common
       - test-sqlite
       - test-postgresql
       - test-mysql
@@ -187,7 +219,7 @@ jobs:
       - name: Generate carryforward flags
         id: flags
         run: |
-          FLAGS=""
+          FLAGS="coverage-common"
           
           # SQLite flags
           for node in 22.x; do
