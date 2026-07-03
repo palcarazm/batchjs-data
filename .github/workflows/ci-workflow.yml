@@ -37,16 +37,6 @@ jobs:
       - name: Build project
         run: npm run build
 
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v7
-        with:
-          name: build-node-${{ matrix.node-version }}
-          path: |
-            dist/
-            node_modules/
-            package.json
-            package-lock.json
-
   test-sqlite:
     name: SQLite
     runs-on: ubuntu-latest
@@ -55,11 +45,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v7
 
-      - name: Download build artifacts
-        uses: actions/download-artifact@v8
-        with:
-          name: build-node-22.x
-          path: .
+      - name: Install dependencies
+        run: npm install
 
       - name: Run SQLite tests
         run: npm run test -- --testPathPattern=src/test/sqlite --coverage
@@ -92,11 +79,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v7
 
-      - name: Download build artifacts (Node 22.x)
-        uses: actions/download-artifact@v8
-        with:
-          name: build-node-22.x
-          path: .
+      - name: Install dependencies
+        run: npm install
 
       - name: Run PostgreSQL tests
         run: npm run test -- --testPathPattern=src/test/postgresql --coverage
@@ -130,11 +114,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v7
 
-      - name: Download build artifacts (Node 22.x)
-        uses: actions/download-artifact@v8
-        with:
-          name: build-node-22.x
-          path: .
+      - name: Install dependencies
+        run: npm install
 
       - name: Run MySQL tests
         run: npm run test -- --testPathPattern=src/test/mysql --coverage
@@ -169,11 +150,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v7
 
-      - name: Download build artifacts (Node 22.x)
-        uses: actions/download-artifact@v8
-        with:
-          name: build-node-22.x
-          path: .
+      - name: Install dependencies
+        run: npm install
 
       - name: Run MariaDB tests
         run: npm run test -- --testPathPattern=src/test/mariadb --coverage
