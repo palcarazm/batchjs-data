@@ -1,6 +1,7 @@
 {
   "name": "batchjs-data",
   "version": "1.1.1",
+  "type": "module",
   "author": {
     "name": "Pablo Alcaraz Martínez",
     "url": "https://github.com/palcarazm/"
@@ -10,18 +11,17 @@
     "url": "https://github.com/sponsors/palcarazm"
   },
   "description": "Extension for BatchJS adding data storage support for databases",
-  "main": "dist/cjs/index.js",
-  "module": "dist/esm/index.js",
-  "types": "dist/@types",
   "files": [
     "dist"
   ],
   "scripts": {
+    "clean": "rimraf dist",
+    "clean:tmp": "rimraf dist/tmp",
     "prepack": "npm run build",
-    "build:cjs": "tsc --project tsconfig.cjs.json",
-    "build:esm": "tsc --project tsconfig.esm.json",
-    "build": "npm run build:cjs && npm run build:esm",
-    "build:watch": "tsc --build tsconfig.cjs.json --watch",
+    "prebuild": "npm run clean",
+    "build": "tsc --project tsconfig.json && rollup -c rollup.config.mjs",
+    "postbuild": "npm run clean:tmp && npm run validate:build",
+    "build:watch": "tsc --build tsconfig.json --watch",
     "docs": "npm run docs:api && npm run docs:build",
     "docs:api": "typedoc && npm run docs:api:postprocess",
     "docs:api:postprocess": "node scripts/typedoc-api-sidebar.mjs",
@@ -30,7 +30,8 @@
     "docs:serve": "vitepress serve docs",
     "test": "jest --coverage",
     "lint": "eslint ./src",
-    "prepare": "husky"
+    "prepare": "husky",
+    "validate:build": "node scripts/validate-build.mjs"
   },
   "keywords": [
     "database batch framework",
@@ -58,6 +59,8 @@
     "@babel/preset-typescript": "^7.24.7",
     "@commitlint/cli": "^20.4.1",
     "@commitlint/config-conventional": "^21.2.0",
+    "@rollup/plugin-terser": "^1.0.0",
+    "@rollup/plugin-typescript": "^12.3.0",
     "@types/jest": "^30.0.0",
     "@types/pg": "^8.20.0",
     "@typescript-eslint/eslint-plugin": "^8.20.0",
@@ -71,6 +74,9 @@
     "mariadb": "^3",
     "mysql2": "^3",
     "pg": "^8",
+    "rimraf": "^6.1.3",
+    "rollup": "^4.62.2",
+    "rollup-plugin-dts": "^6.4.1",
     "sqlite": "^5",
     "sqlite3": "^6",
     "ts-jest": "^29.2.3",
@@ -111,11 +117,6 @@
     "extends": "@commitlint/config-conventional"
   },
   "exports": {
-    ".": {
-      "types": "./dist/@types/index.d.ts",
-      "import": "./dist/esm/index.js",
-      "require": "./dist/cjs/index.js"
-    },
     "./common": {
       "types": "./dist/@types/common/index.d.ts",
       "import": "./dist/esm/common/index.js",
