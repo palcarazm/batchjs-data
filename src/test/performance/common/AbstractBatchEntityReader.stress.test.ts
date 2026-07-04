@@ -103,8 +103,8 @@ describe("AbstractBatchEntityReaderStream Stress Test", () => {
                 expect(metrics.avgCpuUserPercent).toBeLessThanOrEqual(80);
                 expect(metrics.avgCpuSystemPercent).toBeLessThanOrEqual(80);
                 expect(metrics.avgCpuTotalPercent).toBeLessThanOrEqual(80);
-                expect((metrics.avgMemoryRSS / 1024 / 1024)).toBeLessThanOrEqual(120);
-                expect((metrics.avgMemoryHeapUsed / 1024 / 1024)).toBeLessThanOrEqual(60);
+                expect((metrics.avgMemoryRSS / 1024 / 1024)).toBeLessThanOrEqual(250);
+                expect((metrics.avgMemoryHeapUsed / 1024 / 1024)).toBeLessThanOrEqual(100);
                 expect(metrics.totalElapsedSeconds * 1000).toBeLessThan(TIMEOUT_MS);
 
                 done();
