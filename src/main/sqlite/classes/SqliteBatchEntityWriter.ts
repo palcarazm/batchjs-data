@@ -1,4 +1,4 @@
-import sqlite from "sqlite";
+import { DatabaseSync, StatementSync } from "node:sqlite";
 import { AbstractBatchEntityWriterStream, AbstractBatchEntityWriterStreamOptions } from "../../common/index.js";
 import { BatchData, WriteCallback } from "batchjs";
 
@@ -10,11 +10,11 @@ import { BatchData, WriteCallback } from "batchjs";
  */
 export interface SqliteBatchEntityWriterOptions<T> extends AbstractBatchEntityWriterStreamOptions {
     /** The function that creates a database connection */
-    dbConnectionFactory: ()=>Promise<sqlite.Database>;
+    dbConnectionFactory: ()=>Promise<DatabaseSync>;
     /** The SQL prepared statement for inserting entities */
     prepareStatement: string;
     /** The function that saves an entity in the database */
-    saveEntity:(entity: T, stmt: sqlite.Statement) => Promise<void>
+    saveEntity:(entity: T, stmt: StatementSync) => Promise<void>
 }
 
 /**
@@ -24,10 +24,10 @@ export interface SqliteBatchEntityWriterOptions<T> extends AbstractBatchEntityWr
  * @template T The type of the data to be written
  */
 export class SqliteBatchEntityWriter<T> extends AbstractBatchEntityWriterStream<T> {
-    private readonly dbConnectionFactory: ()=>Promise<sqlite.Database>;
+    private readonly dbConnectionFactory: ()=>Promise<DatabaseSync>;
     private readonly prepareStatementString: string;
-    private readonly saveEntity:(entity: T, stmt: sqlite.Statement) => Promise<void>;
-    private saveEntityStatement: sqlite.Statement | null = null;
+    private readonly saveEntity:(entity: T, stmt: StatementSync) => Promise<void>;
+    private saveEntityStatement: StatementSync | null = null;
 
     /**
      
@@ -50,16 +50,17 @@ export class SqliteBatchEntityWriter<T> extends AbstractBatchEntityWriterStream<
      */
     protected async batchWrite(chunk: BatchData<T>): Promise<void>{
         const db = await this.dbConnectionFactory();
-        return db.exec("BEGIN TRANSACTION")
-            .then(()=>this.executeBatch(db, chunk))
-            .then(()=>this.commitTransaction(db))
-            .catch((error) => {
-                this.rollbackTransaction(db);
-                return Promise.reject(error as Error);
-            }).finally(async()=>{
-                await this.finalizeStatement();
-                await db.close();
-            });
+        try {
+            db.exec("BEGIN TRANSACTION");
+            await this.executeBatch(db, chunk);
+            await this.commitTransaction(db);
+        } catch (error) {
+            await this.rollbackTransaction(db);
+            throw error;
+        } finally {
+            await this.finalizeStatement();
+            db.close();
+        }
     }
 
     /**
@@ -68,11 +69,11 @@ export class SqliteBatchEntityWriter<T> extends AbstractBatchEntityWriterStream<
      * are rejected.
      * 
      * @private
-     * @param {sqlite3.Database} db - The database connection.
+     * @param {DatabaseSync} db - The database connection.
      * @param {BatchData<T>} chunk - The batch of data to write to the storage.
      * @returns {Promise<void[]>} A promise that resolves when all promises are resolved.
      */
-    private async executeBatch(db: sqlite.Database, chunk: BatchData<T>) : Promise<void[]> {
+    private async executeBatch(db: DatabaseSync, chunk: BatchData<T>) : Promise<void[]> {
         const stmt = await this.prepareStatement(db);
         const promises = chunk.map((entity) => this.saveEntity(entity, stmt));
         return Promise.all(promises);
@@ -83,11 +84,11 @@ export class SqliteBatchEntityWriter<T> extends AbstractBatchEntityWriterStream<
      * If an error occurred, the transaction is rolled back and the error is propagated.
      * 
      * @private
-     * @param {sqlite.Database} db - The database connection.
+     * @param {DatabaseSync} db - The database connection.
      * @returns {Promise<void>} A promise that resolves when the transaction is committed.
      */
-    private async commitTransaction(db: sqlite.Database):Promise<void> {
-        return db.exec("COMMIT");
+    private async commitTransaction(db: DatabaseSync):Promise<void> {
+        db.exec("COMMIT");
     }
 
     /**
@@ -95,22 +96,22 @@ export class SqliteBatchEntityWriter<T> extends AbstractBatchEntityWriterStream<
      * The error is propagated to the caller.
      * 
      * @private
-     * @param {sqlite.Database} db - The database connection.
+     * @param {DatabaseSync} db - The database connection.
      * @returns {Promise<void>} A promise that resolves when the transaction is rolled back.
      */
-    private async rollbackTransaction(db: sqlite.Database):Promise<void> {
-        return db.exec("ROLLBACK");
+    private async rollbackTransaction(db: DatabaseSync):Promise<void> {
+        db.exec("ROLLBACK");
     }
 
     /**
      * Prepares a statement for saving entities. If the statement has already been
      * prepared, it is reused.
      * @private
-     * @param {sqlite.Database} db - The database connection.
-     * @returns {Promise<sqlite.Statement>} The prepared statement.
+     * @param {DatabaseSync} db - The database connection.
+     * @returns {Promise<StatementSync>} The prepared statement.
      */
-    private async prepareStatement(db: sqlite.Database): Promise<sqlite.Statement> {
-        this.saveEntityStatement ??= await db.prepare(this.prepareStatementString);
+    private async prepareStatement(db: DatabaseSync): Promise<StatementSync> {
+        this.saveEntityStatement ??= db.prepare(this.prepareStatementString);
         return this.saveEntityStatement;
     }
 
@@ -122,7 +123,6 @@ export class SqliteBatchEntityWriter<T> extends AbstractBatchEntityWriterStream<
      */
     private async finalizeStatement(): Promise<void> {
         if (this.saveEntityStatement) {
-            await this.saveEntityStatement.finalize();
             this.saveEntityStatement = null;
         }
     }

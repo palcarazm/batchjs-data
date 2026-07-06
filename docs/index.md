@@ -38,7 +38,7 @@ class UserReader extends SqliteBatchEntityReader<UserDTO, UserDTO> {
   constructor(batchSize: number) {
     super({
       batchSize,
-      dbConnectionFactory: async () => open({ filename: './database.db', driver: sqlite3.Database }),
+      dbConnectionFactory: async () => Promise.resolve(new DatabaseSync("./database.db")),
       query: 'SELECT id, username FROM users',
       rowToEntity: (row) => row
     });
@@ -49,7 +49,7 @@ class UserWriter extends SqliteBatchEntityWriter<UserDTO> {
   constructor(batchSize: number) {
     super({
       batchSize,
-      dbConnectionFactory: async () => open({ filename: './database.db', driver: sqlite3.Database }),
+      dbConnectionFactory: async () => Promise.resolve(new DatabaseSync("./database.db")),
       prepareStatement: 'INSERT INTO users (id, username) VALUES (@id, @username)',
       saveEntity: async (entity, stmt) => stmt.all({ '@id': entity.id, '@username': entity.username })
     });

@@ -1,3 +1,4 @@
+/// <reference types="jest" />
 import { UserBatchWriter } from "../mocks/UserBatchWriter";
 import { UserDTO } from "../mocks/UserDTO";
 import { UserDatabase } from "../mocks/UserDatabase";
@@ -22,7 +23,7 @@ describe("SqliteBatchEntityWriter", () => {
 
         writer.once("finish", () => {
             UserDatabase.db
-                .then((db) => db.all<UserDTO[]>("SELECT * FROM users"))
+                .then((db) => db.prepare("SELECT * FROM users").all() as unknown as UserDTO[])
                 .then((rows) => {
                     expect(rows).toEqual([
                         { id: 1, username: "Alice" },
@@ -44,9 +45,9 @@ describe("SqliteBatchEntityWriter", () => {
         });
 
         writer.on("error", (err) => {
-            expect(err).toBeInstanceOf(Error);
+            expect(err.message).toBe("UNIQUE constraint failed: users.id")
             UserDatabase.db
-                .then((db) => db.all<UserDTO[]>("SELECT * FROM users"))
+                .then((db) => db.prepare("SELECT * FROM users").all() as unknown as UserDTO[])
                 .then((rows) => {
                     expect(rows).toEqual([]);
                 }).finally(()=>done());

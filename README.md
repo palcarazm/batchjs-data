@@ -31,7 +31,6 @@ Extension of [Batch JS](https://github.com/palcarazm/batchjs) adding data storag
 
 ```sh
 npm install batchjs-data
-npm install sqlite sqlite3  #For SQLite implementation
 npm install mariadb         #For MariaDB implementation
 npm install mysql2          #For MySQL implementation
 npm install pg @types/pg    #For PostgreSQL implementation
@@ -44,111 +43,120 @@ yarn add batchjs-data --no-optional
 yarn add mariadb         #For MariaDB implementation
 yarn add mysql2          #For MySQL implementation
 yarn add pg @types/pg    #For PostgreSQL implementation
-yarn add sqlite sqlite3  #For SQLite implementation
 ```
-
 
 # Usage
 
 1. Create your reader
-    ```typescript
-    import sqlite3 from "sqlite3";
-    import  {open} from "sqlite";
-    import { SqliteBatchEntityReader } from "batchjs-data/sqlite";
-    import { UserDTO } from "./UserDTO";
 
-    export class UserBatchReader extends SqliteBatchEntityReader<UserDTO,UserDTO> {
-        constructor(options:{batchSize:number,query?:string}) {
-            super({
-                batchSize: options.batchSize,
-                dbConnectionFactory: () => { return open({filename: './database.db', driver: sqlite3.Database});},
-                query: options.query || "SELECT id, username FROM users",
-                rowToEntity: (row: UserDTO) => row
-            });
-        }
-    }
-    ```
+   ```typescript
+   import { DatabaseSync } from "node:sqlite";
+   import { SqliteBatchEntityReader } from "batchjs-data/sqlite";
+   import { UserDTO } from "./UserDTO";
+
+   export class UserBatchReader extends SqliteBatchEntityReader<
+     UserDTO,
+     UserDTO
+   > {
+     constructor(options: { batchSize: number; query?: string }) {
+       super({
+         batchSize: options.batchSize,
+         dbConnectionFactory: async () =>
+           Promise.resolve(new DatabaseSync("./database.db")),
+         query: options.query || "SELECT id, username FROM users",
+         rowToEntity: (row: UserDTO) => row,
+       });
+     }
+   }
+   ```
+
 2. Create your writer
-    ```typescript
-    import sqlite3 from "sqlite3";
-    import sqlite, {open} from "sqlite";
-    import { SqliteBatchEntityWriter } from "batchjs-data/sqlite";
-    import { UserDTO } from "./UserDTO";
 
-    export class UserBatchWriter extends SqliteBatchEntityWriter<UserDTO> {
-        constructor(options:{batchSize:number}){
-            super({
-                batchSize: options.batchSize,
-                dbConnectionFactory: () => { return open({filename: './database.db', driver: sqlite3.Database});},
-                prepareStatement: "INSERT INTO users (id, username) VALUES (@id, @username)",
-                saveEntity:(entity: UserDTO, stmt: sqlite.Statement)=>stmt.all<void>({'@id': entity.id, '@username': entity.username})
-            });
-        }
-    }
-    ```
+   ```typescript
+   import { DatabaseSync, StatementSync } from "node:sqlite";
+   import { SqliteBatchEntityWriter } from "batchjs-data/sqlite";
+   import { UserDTO } from "./UserDTO";
+
+   export class UserBatchWriter extends SqliteBatchEntityWriter<UserDTO> {
+     constructor(options: { batchSize: number }) {
+       super({
+         batchSize: options.batchSize,
+         dbConnectionFactory: async () =>
+           Promise.resolve(new DatabaseSync("./database.db")),
+         prepareStatement: "INSERT INTO users (id, username) VALUES (?, ?)",
+         saveEntity: async (entity: UserDTO, stmt: StatementSync) => {
+           stmt.run(entity.id, entity.username);
+         },
+       });
+     }
+   }
+   ```
+
 3. Use them in your BatchJS Job
-    ```typescript
-    import { Job, Step } from "batchjs";
 
-    // Implement a step
-    class StepImplementation extends Step {
-        // Set a name to the step
-        constructor(name: string = "DemoStep") {
-            super(name);
-        }
+   ```typescript
+   import { Job, Step } from "batchjs";
 
-        // Implement the reader to load step data source
-        protected _reader() {
-            return new UserBatchReader({batchSize:2});
-        }
+   // Implement a step
+   class StepImplementation extends Step {
+     // Set a name to the step
+     constructor(name: string = "DemoStep") {
+       super(name);
+     }
 
-        // Implement the processors to transform data sequently using our streams or your own streams
-        protected _processors() {
-            const opts: TransformOptions = {
-                objectMode: true,
-                transform(
-                    chunk: unknown,
-                    encoding: BufferEncoding,
-                    callback: TransformCallback
-                ) {
-                    this.push(chunk);
-                    callback();
-                },
-            };
-            return [new Transform(opts), new Transform(opts)];
-        }
+     // Implement the reader to load step data source
+     protected _reader() {
+       return new UserBatchReader({ batchSize: 2 });
+     }
 
-        // Implement the write to stock final step data
-        protected _writer() {
-            return new UserBatchWriter({batchSize:2})
-        }
-    }
+     // Implement the processors to transform data sequently using our streams or your own streams
+     protected _processors() {
+       const opts: TransformOptions = {
+         objectMode: true,
+         transform(
+           chunk: unknown,
+           encoding: BufferEncoding,
+           callback: TransformCallback,
+         ) {
+           this.push(chunk);
+           callback();
+         },
+       };
+       return [new Transform(opts), new Transform(opts)];
+     }
 
-    // Implement a Job
-    class JobImplementation extends Job {
-        // Implement to set the steps to be sequently executed.
-        protected _steps() {
-            return [new StepImplementation(), new StepImplementation()];
-        }
-    }
+     // Implement the write to stock final step data
+     protected _writer() {
+       return new UserBatchWriter({ batchSize: 2 });
+     }
+   }
 
-    // Instance the Job
-    const job = new JobImplementation("My job");
+   // Implement a Job
+   class JobImplementation extends Job {
+     // Implement to set the steps to be sequently executed.
+     protected _steps() {
+       return [new StepImplementation(), new StepImplementation()];
+     }
+   }
 
-    // Set events listener
-    job.on("stepStart", (step: step) => {
-        console.log(`Starting step ${step.name}`);
-    });
+   // Instance the Job
+   const job = new JobImplementation("My job");
 
-    // Launch the job
-    job.run()
-        .then(() => {
-            console.log("Job completed successfully");
-        })
-        .catch((error) => {
-            console.log("Job completed with errors");
-        });
-    ```
+   // Set events listener
+   job.on("stepStart", (step: step) => {
+     console.log(`Starting step ${step.name}`);
+   });
+
+   // Launch the job
+   job
+     .run()
+     .then(() => {
+       console.log("Job completed successfully");
+     })
+     .catch((error) => {
+       console.log("Job completed with errors");
+     });
+   ```
 
 # Documentation
 

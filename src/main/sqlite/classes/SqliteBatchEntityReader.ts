@@ -1,4 +1,4 @@
-import sqlite from "sqlite";
+import { DatabaseSync, StatementSync } from "node:sqlite";
 import { AbstractBatchEntityReaderStream, AbstractBatchEntityReaderStreamOptions } from "../../common/index.js";
 import { BatchData, ReadCallback } from "batchjs";
 
@@ -11,7 +11,7 @@ import { BatchData, ReadCallback } from "batchjs";
  */
 export interface SqliteBatchEntityReaderOptions<T,E> extends AbstractBatchEntityReaderStreamOptions {
     /** The function that creates a database connection */
-    dbConnectionFactory: ()=>Promise<sqlite.Database>;
+    dbConnectionFactory: ()=>Promise<DatabaseSync>;
     /** SQL query to be executed (without LIMIT and OFFSET) */
     query: string;
     /** Function that converts a row to an entity */
@@ -26,11 +26,11 @@ export interface SqliteBatchEntityReaderOptions<T,E> extends AbstractBatchEntity
  * @template E The type of the row data from the database
  */
 export class SqliteBatchEntityReader<T,E> extends AbstractBatchEntityReaderStream<T> {
-    private readonly dbConnectionFactory: ()=>Promise<sqlite.Database>;
-    private dbConnection: sqlite.Database | null = null;
+    private readonly dbConnectionFactory: ()=>Promise<DatabaseSync>;
+    private dbConnection: DatabaseSync | null = null;
     private readonly query: string;
     private readonly rowToEntity:(row: E)=> T;
-    private fetchEntityStatement: sqlite.Statement | null = null;
+    private fetchEntityStatement: StatementSync | null = null;
     private entitiesRead : number = 0;
 
     /**
@@ -54,10 +54,11 @@ export class SqliteBatchEntityReader<T,E> extends AbstractBatchEntityReaderStrea
     protected async fetch(size:number): Promise<BatchData<T>> {
         return this.connectDatabase()
             .then((db)=>this.prepareStatement(db))
-            .then((statement) => statement.all({ "@limit": size, "@offset": this.entitiesRead }))
-            .then((results: E[]) => {
+            .then((statement) => statement.all(size, this.entitiesRead))
+            .then((results) => {
+                const mappedResults = results as E[];
                 this.entitiesRead += size;
-                return results.map(this.rowToEntity);;
+                return mappedResults.map(this.rowToEntity);
             });
     }
 
@@ -84,9 +85,9 @@ export class SqliteBatchEntityReader<T,E> extends AbstractBatchEntityReaderStrea
      * Connects to the database by creating a new database connection if none
      * already exists, or by reusing an existing connection.
      * @private
-     * @returns {Promise<sqlite.Database>} A promise that resolves with the database connection.
+     * @returns {Promise<DatabaseSync>} A promise that resolves with the database connection.
      */
-    private async connectDatabase(): Promise<sqlite.Database> {
+    private async connectDatabase(): Promise<DatabaseSync> {
         this.dbConnection ??= await this.dbConnectionFactory();
         return this.dbConnection;
     }
@@ -100,7 +101,7 @@ export class SqliteBatchEntityReader<T,E> extends AbstractBatchEntityReaderStrea
      */
     private async disconnectDatabase(): Promise<void> {
         if (this.dbConnection) {
-            await this.dbConnection.close();
+            this.dbConnection.close();
             this.dbConnection = null;
         }
     }
@@ -109,11 +110,11 @@ export class SqliteBatchEntityReader<T,E> extends AbstractBatchEntityReaderStrea
      * Prepares a statement for fetching entities. If the statement has already been
      * prepared, it is reused.
      * @private
-     * @param {sqlite.Database} db - The database connection.
-     * @returns {Promise<sqlite.Statement>} The prepared statement.
+     * @param {DatabaseSync} db - The database connection.
+     * @returns {Promise<StatementSync>} The prepared statement.
      */
-    private async prepareStatement(db: sqlite.Database): Promise<sqlite.Statement> {
-        this.fetchEntityStatement ??= await db.prepare( `${this.query} LIMIT @limit OFFSET @offset`);
+    private async prepareStatement(db: DatabaseSync): Promise<StatementSync> {
+        this.fetchEntityStatement ??= db.prepare(`${this.query} LIMIT ? OFFSET ?`);
         return this.fetchEntityStatement;
     }
     
@@ -125,7 +126,6 @@ export class SqliteBatchEntityReader<T,E> extends AbstractBatchEntityReaderStrea
      */
     private async finalizeStatement(): Promise<void> {
         if (this.fetchEntityStatement) {
-            await this.fetchEntityStatement.finalize();
             this.fetchEntityStatement = null;
         }
     }
