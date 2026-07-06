@@ -45,7 +45,7 @@ describe("SqliteBatchEntityWriter", () => {
         });
 
         writer.on("error", (err) => {
-            expect(err.message).toBe("UNIQUE constraint failed: users.id")
+            expect(err.message).toBe("UNIQUE constraint failed: users.id");
             UserDatabase.db
                 .then((db) => db.prepare("SELECT * FROM users").all() as unknown as UserDTO[])
                 .then((rows) => {

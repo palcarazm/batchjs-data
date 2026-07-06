@@ -11,7 +11,7 @@ export class UserDatabase{
             `CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY,
             username TEXT NOT NULL
-            )`)
+            )`);
         db.exec("DELETE FROM users");
     }
 
