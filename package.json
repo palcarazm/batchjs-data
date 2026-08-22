@@ -79,7 +79,7 @@
     "rollup": "^4.62.2",
     "rollup-plugin-dts": "^6.4.1",
     "testcontainers": "^10.0.0",
-    "@testcontainers/mariadb": "^10.0.0",
+    "@testcontainers/mariadb": "^12.1.0",
     "@testcontainers/mysql": "^12.0.4",
     "@testcontainers/postgresql": "^12.0.4",
     "ts-jest": "^29.2.3",
