@@ -1,6 +1,7 @@
 {
   "name": "batchjs-data",
   "version": "1.1.1",
+  "type": "module",
   "author": {
     "name": "Pablo Alcaraz Martínez",
     "url": "https://github.com/palcarazm/"
@@ -10,27 +11,28 @@
     "url": "https://github.com/sponsors/palcarazm"
   },
   "description": "Extension for BatchJS adding data storage support for databases",
-  "main": "dist/cjs/index.js",
-  "module": "dist/esm/index.js",
-  "types": "dist/@types",
   "files": [
     "dist"
   ],
   "scripts": {
+    "clean": "rimraf dist",
+    "clean:tmp": "rimraf dist/tmp",
     "prepack": "npm run build",
-    "build:cjs": "tsc --project tsconfig.cjs.json",
-    "build:esm": "tsc --project tsconfig.esm.json",
-    "build": "npm run build:cjs && npm run build:esm",
-    "build:watch": "tsc --build tsconfig.cjs.json --watch",
+    "prebuild": "npm run clean",
+    "build": "tsc --project tsconfig.json && rollup -c rollup.config.mjs",
+    "postbuild": "npm run clean:tmp && npm run validate:build",
+    "build:watch": "tsc --build tsconfig.json --watch",
     "docs": "npm run docs:api && npm run docs:build",
     "docs:api": "typedoc && npm run docs:api:postprocess",
     "docs:api:postprocess": "node scripts/typedoc-api-sidebar.mjs",
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs",
     "docs:serve": "vitepress serve docs",
-    "test": "jest --coverage",
+    "test": "jest --coverage --testPathIgnorePatterns='src/test/performance'",
+    "test:stress": "jest --testMatch='**/*.stress.test.ts' --maxWorkers=2 --maxConcurrency=2 --maxParallel=2",
     "lint": "eslint ./src",
-    "prepare": "husky"
+    "prepare": "husky",
+    "validate:build": "node scripts/validate-build.mjs"
   },
   "keywords": [
     "database batch framework",
@@ -53,26 +55,33 @@
     "npm": ">=10"
   },
   "devDependencies": {
-    "@babel/core": "^7.24.9",
+    "@babel/core": "^8.0.1",
     "@babel/preset-env": "^8.0.2",
     "@babel/preset-typescript": "^7.24.7",
-    "@commitlint/cli": "^20.4.1",
-    "@commitlint/config-conventional": "^19.1.0",
+    "@commitlint/cli": "^21.2.1",
+    "@commitlint/config-conventional": "^21.2.0",
+    "@rollup/plugin-terser": "^1.0.0",
+    "@rollup/plugin-typescript": "^12.3.0",
     "@types/jest": "^30.0.0",
     "@types/pg": "^8.20.0",
     "@typescript-eslint/eslint-plugin": "^8.20.0",
     "@typescript-eslint/parser": "^8.20.0",
-    "commitlint": "^20.4.1",
+    "commitlint": "^21.2.0",
     "dotenv": "^17.2.2",
-    "eslint": "^9.8.0",
+    "eslint": "^10.6.0",
     "globals": "^17.3.0",
     "husky": "^9.0.11",
     "jest": "^30.1.3",
     "mariadb": "^3",
     "mysql2": "^3",
     "pg": "^8",
-    "sqlite": "^5",
-    "sqlite3": "^5",
+    "rimraf": "^6.1.3",
+    "rollup": "^4.62.2",
+    "rollup-plugin-dts": "^6.4.1",
+    "testcontainers": "^12.1.0",
+    "@testcontainers/mariadb": "^12.1.0",
+    "@testcontainers/mysql": "^12.0.4",
+    "@testcontainers/postgresql": "^12.0.4",
     "ts-jest": "^29.2.3",
     "typedoc": "^0.28.0",
     "typedoc-plugin-markdown": "^4.12.0",
@@ -83,9 +92,7 @@
     "batchjs": ">=2.0.0-0 & <3",
     "mariadb": ">=3 & <4",
     "mysql2": ">=3 & <4",
-    "pg": ">=8 & <9",
-    "sqlite": ">=5 & <6",
-    "sqlite3": ">=5 & <6"
+    "pg": ">=8 & <9"
   },
   "peerDependenciesMeta": {
     "batchjs": {
@@ -99,23 +106,12 @@
     },
     "pg": {
       "optional": true
-    },
-    "sqlite": {
-      "optional": true
-    },
-    "sqlite3": {
-      "optional": true
     }
   },
   "commitlint": {
     "extends": "@commitlint/config-conventional"
   },
   "exports": {
-    ".": {
-      "types": "./dist/@types/index.d.ts",
-      "import": "./dist/esm/index.js",
-      "require": "./dist/cjs/index.js"
-    },
     "./common": {
       "types": "./dist/@types/common/index.d.ts",
       "import": "./dist/esm/common/index.js",
